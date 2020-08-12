@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TouchpadGestures_Advanced": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}
