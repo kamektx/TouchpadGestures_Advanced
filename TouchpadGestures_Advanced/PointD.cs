@@ -28,18 +28,18 @@ namespace TouchpadGestures_Advanced
         {
             get { return Math.Atan2(Y, X) * 180 / Math.PI; }
         }
-        public bool IsDirection(char direction)
+        public bool IsDirection(Direction direction)
         {
             if (Abs < Settings.ThresholdActive) return false;
             switch (direction)
             {
-                case 'd':
+                case Direction.down:
                     return 90 - Settings.ThresholdAngle / 2 < ArgDeg && ArgDeg < 90 + Settings.ThresholdAngle / 2;
-                case 'u':
+                case Direction.up:
                     return -90 - Settings.ThresholdAngle / 2 < ArgDeg && ArgDeg < -90 + Settings.ThresholdAngle / 2;
-                case 'r':
+                case Direction.right:
                     return -Settings.ThresholdAngle / 2 < ArgDeg && ArgDeg < Settings.ThresholdAngle / 2;
-                case 'l':
+                case Direction.left:
                     return 180 - Settings.ThresholdAngle / 2 < ArgDeg || ArgDeg < -180 + Settings.ThresholdAngle / 2;
                 default:
                     return false;

@@ -15,7 +15,8 @@ namespace TouchpadGestures_Advanced
             {"default", Mode.DispatchKeyboardShortcat}
         };
         internal static string ForegroundApplication { get; set; }
-        internal static int Threshold = 60;
+        internal static int VerticalThreshold = 90;
+        internal static int HorizontalThreshold = 150;
         internal static int ThresholdActive = 150;
         internal static int IgnoreTime = 180;
         internal static double IgnoreMagnification = 0.1;

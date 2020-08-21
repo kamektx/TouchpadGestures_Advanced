@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TouchpadGestures_Advanced
 {
-    public static class KeyInput
+    public static class KeySend
     {
         private static HashSet<int> _Pressing = new HashSet<int>();
         private static HashSet<int> _ReleasedBuffer = new HashSet<int>();
@@ -24,6 +24,7 @@ namespace TouchpadGestures_Advanced
                 System.IntPtr ptr1 = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(int)) * _PressingCount);
                 Marshal.Copy(_array, 0, ptr1, _PressingCount);
                 NativeMethods.SendDirectKeyInput('d', ptr1, _PressingCount, IntPtr.Zero, 0);
+                Marshal.FreeCoTaskMem(ptr1);
                 await Task.Delay(40);
             }
             _IsTimerWorking = false;
@@ -33,6 +34,7 @@ namespace TouchpadGestures_Advanced
             System.IntPtr ptr1 = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(int)) * keys1.Count);
             Marshal.Copy(keys1.ToArray(), 0, ptr1, keys1.Count);
             NativeMethods.SendDirectKeyInput('p', ptr1, keys1.Count, IntPtr.Zero, 0);
+            Marshal.FreeCoTaskMem(ptr1);
         }
         public static async void Down(List<int> keys1)
         {
@@ -43,6 +45,7 @@ namespace TouchpadGestures_Advanced
             System.IntPtr ptr1 = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(int)) * keys1.Count);
             Marshal.Copy(keys1.ToArray(), 0, ptr1, keys1.Count);
             NativeMethods.SendDirectKeyInput('d', ptr1, keys1.Count, IntPtr.Zero, 0);
+            Marshal.FreeCoTaskMem(ptr1);
             await Task.Delay(700);
             foreach (var item in keys1)
             {
@@ -67,6 +70,20 @@ namespace TouchpadGestures_Advanced
             System.IntPtr ptr1 = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(int)) * keys1.Count);
             Marshal.Copy(keys1.ToArray(), 0, ptr1, keys1.Count);
             NativeMethods.SendDirectKeyInput('u', ptr1, keys1.Count, IntPtr.Zero, 0);
+        }
+        public static void Down2(List<int> keys1)
+        {
+            System.IntPtr ptr1 = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(int)) * keys1.Count);
+            Marshal.Copy(keys1.ToArray(), 0, ptr1, keys1.Count);
+            NativeMethods.SendDirectKeyInput('d', ptr1, keys1.Count, IntPtr.Zero, 0);
+            Marshal.FreeCoTaskMem(ptr1);
+        }
+        public static void Up2(List<int> keys1)
+        {
+            System.IntPtr ptr1 = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(int)) * keys1.Count);
+            Marshal.Copy(keys1.ToArray(), 0, ptr1, keys1.Count);
+            NativeMethods.SendDirectKeyInput('u', ptr1, keys1.Count, IntPtr.Zero, 0);
+            Marshal.FreeCoTaskMem(ptr1);
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TouchpadGestures_Advanced
 {
-    public static class WindowsConstants
+    public static class Tools
     {
         public enum Key
         {

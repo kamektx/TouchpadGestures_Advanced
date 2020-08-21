@@ -32,11 +32,16 @@ namespace TouchpadGestures_Advanced
             source.AddHook(ControlHost.WindowProc);
             NativeMethods.RegisterRawInput(_helper.Handle);
         }
+        internal void OnContentRenderdTask(object sender, EventArgs e)
+        {
+            NativeMessaging.KilledNMC_Detector();
+        }
         public MainWindow()
         {
             InitializeComponent();
             _helper = new WindowInteropHelper(this);
             ContentRendered += RawInputActivater;
+            ContentRendered += OnContentRenderdTask;
         }
     }
 

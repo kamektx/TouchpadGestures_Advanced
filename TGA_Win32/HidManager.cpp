@@ -81,7 +81,7 @@ DLLEXPORT int __stdcall HidManager(WPARAM wParam, LPARAM lParam, char* rjson, un
         for (USHORT linkCollection = 1; linkCollection <= 5; linkCollection++)
         {
             ULONG usageLength = 9;
-            USAGE_AND_PAGE usage_and_page[9];
+            USAGE_AND_PAGE usage_and_page[9] = {sizeof(usage_and_page)};
             HidP_GetUsagesEx(HidP_Input, linkCollection, usage_and_page, &usageLength, preparsedData, (PCHAR)raw->data.hid.bRawData, raw->data.hid.dwSizeHid);
             if (linkCollection <= ljson["ContactCount"].get<unsigned long>()) {
                 ljson["LinkCollection"][linkCollection - 1]["Tip"] = "off";

@@ -10,6 +10,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TouchpadGestures_Advanced",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TGA_Win32", "TGA_Win32\TGA_Win32.vcxproj", "{54B946BD-3D57-455B-B997-57F6DE4495FF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TGA_NativeMessaging_Cliant", "TGA_NativeMessaging_Cliant\TGA_NativeMessaging_Cliant.vcxproj", "{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,18 @@ Global
 		{54B946BD-3D57-455B-B997-57F6DE4495FF}.Release|x64.Build.0 = Release|x64
 		{54B946BD-3D57-455B-B997-57F6DE4495FF}.Release|x86.ActiveCfg = Release|Win32
 		{54B946BD-3D57-455B-B997-57F6DE4495FF}.Release|x86.Build.0 = Release|Win32
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Debug|Any CPU.Build.0 = Debug|Win32
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Debug|x64.ActiveCfg = Debug|x64
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Debug|x64.Build.0 = Debug|x64
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Debug|x86.ActiveCfg = Debug|Win32
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Debug|x86.Build.0 = Debug|Win32
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Release|Any CPU.ActiveCfg = Release|Win32
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Release|Any CPU.Build.0 = Release|Win32
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Release|x64.ActiveCfg = Release|x64
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Release|x64.Build.0 = Release|x64
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Release|x86.ActiveCfg = Release|Win32
+		{3AD234C0-275D-4DA2-9C2B-8D54BAAE3587}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
