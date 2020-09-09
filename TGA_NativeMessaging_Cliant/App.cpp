@@ -38,6 +38,9 @@ void App::SetAppData() {
     MyAppData = NMC_AppData + "\\" + Key;
     filesystem::create_directory(filesystem::path(MyAppData));
     filesystem::create_directory(filesystem::path(MyAppData + "\\screenshot"));
+    filesystem::create_directory(filesystem::path(MyAppData + "\\favicon"));
+    filesystem::create_directory(filesystem::path(MyAppData + "\\favicon\\raw"));
+    filesystem::create_directory(filesystem::path(MyAppData + "\\favicon\\png"));
 }
 App::App() {
     Key = GenerateKey();

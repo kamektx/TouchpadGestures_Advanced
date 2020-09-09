@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "Events.h"
+
+using namespace std;
+
 Events events = Events();
 
 Events::Events()

@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "MyRegistry.h"
+
+using namespace std;
+
 MyRegistry registry = MyRegistry();
 
 MyRegistry::MyRegistry() {

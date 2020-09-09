@@ -153,6 +153,7 @@
     <ClCompile Include="Base32.cpp" />
     <ClCompile Include="Events.cpp" />
     <ClCompile Include="MyFunc.cpp" />
+    <ClCompile Include="MyProcess.cpp" />
     <ClCompile Include="MyRegistry.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="string_wstring.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="Events.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="MyFunc.h" />
+    <ClInclude Include="MyProcess.h" />
     <ClInclude Include="MyRegistry.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

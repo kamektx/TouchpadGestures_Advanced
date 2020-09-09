@@ -15,7 +15,7 @@ void mySend(string utf8string)
     fwrite(outString.c_str(), sizeof(char), dataLength, stdout);
     cout << flush;
 }
-std::string base64Decode(const std::string& in) {
+std::string base64Decode(const std::string& in, string& formatOut) {
     std::string out;
     std::vector<int> T(256, -1);
     for (int i = 0; i < 64; i++)
@@ -25,10 +25,29 @@ std::string base64Decode(const std::string& in) {
 
     unsigned int val = 0;
     int valb = -8;
-    int counter = 0;
+    bool isBeforeData = true;
+    string dataType;
+    stringstream ss;
     for (unsigned char c : in) {
-        if (counter < 23) {
-            counter++;
+        if (isBeforeData) {
+            ss << c;
+            if (c == ',') {
+                ss.str(dataType);
+                if (dataType.find("svg") != string::npos)
+                {
+                    formatOut = "svg";
+                }
+                else if (dataType.find("ico") != string::npos) {
+                    formatOut = "ico";
+                }
+                else if (dataType.find("png") != string::npos) {
+                    formatOut = "png";
+                }
+                else if (dataType.find("jpeg") != string::npos) {
+                    formatOut = "jpeg";
+                }
+                isBeforeData = false;
+            }
             continue;
         }
         if (T[c] == -1) break;

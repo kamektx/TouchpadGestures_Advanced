@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-using namespace std;
 class MyRegistry {
 public:
     HKEY TGA;
@@ -9,11 +8,11 @@ public:
     unsigned int NMC_RunningMax;
     MyRegistry();
     ~MyRegistry();
-    HKEY Open(string subKey);
-    void GetValue(HKEY hkey, string value, unsigned int* data);
-    void GetValue(HKEY hkey, string value, string data);
-    void SetValue(HKEY hkey, string value, unsigned int data);
-    void SetValue(HKEY hkey, string value, string data);
+    HKEY Open(std::string subKey);
+    void GetValue(HKEY hkey, std::string value, unsigned int* data);
+    void GetValue(HKEY hkey, std::string value, std::string data);
+    void SetValue(HKEY hkey, std::string value, unsigned int data);
+    void SetValue(HKEY hkey, std::string value, std::string data);
 private:
     class RegistryError
         : public std::runtime_error

@@ -3,6 +3,7 @@
 #include "App.h"
 #include "Events.h"
 #include "MyFunc.h"
+#include "MyProcess.h"
 
 
 using namespace std;
@@ -10,24 +11,8 @@ using namespace nlohmann;
 
 int main()
 {
+    MyProcess TGA("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\bin\\Release\\netcoreapp3.1\\TouchpadGestures_Advanced.exe", "");
 
-    STARTUPINFO tStartupInfo = { sizeof(tStartupInfo) };
-    PROCESS_INFORMATION tProcessInfomation = { 0 };
-    WCHAR AppPath[] = L"C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\bin\\Release\\netcoreapp3.1\\TouchpadGestures_Advanced.exe";
-    WCHAR CommandLine[] = L"";
-
-    BOOL bResult = CreateProcessW(
-        AppPath,
-        CommandLine,
-        NULL,
-        NULL,
-        FALSE,
-        0,
-        NULL,
-        NULL,
-        &tStartupInfo,
-        &tProcessInfomation
-    );
     if (events.TGA_Init != NULL) {
         WaitForSingleObject(events.TGA_Init, INFINITE);
     }
@@ -95,10 +80,27 @@ int main()
         if (jsonType == "ScreenShot")
         {
             string data = json1.at("Data").get<string>();
-            string result = base64Decode(data);
+            string format;
+            string result = base64Decode(data, format);
             ofstream file(app.MyAppData + "\\screenshot\\" + json1.at("FileName").get<string>(), ios::binary);
             file.write(result.c_str(), result.length());
             file.close();
+        }
+        else if (jsonType == "Favicon")
+        {
+            string data = json1.at("Data").get<string>();
+            string format;
+            string name = json1.at("Name").get<string>();
+            string result = base64Decode(data, format);
+            ofstream file(app.MyAppData + "\\favicon\\raw\\" + name + "." + format, ios::binary);
+            file.write(result.c_str(), result.length());
+            file.close();
+            if (format == "svg") {
+                MyProcess ImageMagick(app.TGA_AppData + "\\GraphicsMagick\\gm.exe", "convert -size 64x64 \"" + app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "\" \"" + app.MyAppData + "\\favicon\\png\\" + name + ".png\"");
+            }
+            else {
+                MyProcess ImageMagick(app.TGA_AppData + "\\GraphicsMagick\\gm.exe", "convert -resize 64x64 \"" + app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "\" \"" + app.MyAppData + "\\favicon\\png\\" + name + ".png\"");
+            }
         }
         else if (jsonType == "SendingObject") {
             ofstream file(app.MyAppData + "\\sending_object.json", ios::binary);
@@ -108,7 +110,5 @@ int main()
         count++;
         mySend(u8"pong");
     }
-    CloseHandle(tProcessInfomation.hProcess);
-    CloseHandle(tProcessInfomation.hThread);
     return 0;
 }
