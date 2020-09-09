@@ -20,7 +20,7 @@ namespace TouchpadGestures_Advanced
         {
             get
             {
-                return Settings.VerticalThreshold;
+                return Settings.VerticalThresholdSmall;
             }
         }
         public override int HorizontalThreshold

@@ -33,7 +33,7 @@ namespace TouchpadGestures_Advanced
                 }
                 else
                 {
-                    return Settings.VerticalThreshold;
+                    return Settings.VerticalThresholdSmall;
                 }
             }
         }

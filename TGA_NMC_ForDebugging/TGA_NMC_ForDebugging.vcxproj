@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{3ad234c0-275d-4da2-9c2b-8d54baae3587}</ProjectGuid>
-    <RootNamespace>TGANativeMessagingCliant</RootNamespace>
+    <ProjectGuid>{4f459d33-6add-458d-babe-d5fb817162ed}</ProjectGuid>
+    <RootNamespace>TGANMCForDebugging</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -72,13 +72,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>obj\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>obj\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -94,7 +94,6 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,7 +110,6 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,11 +150,10 @@
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Base32.cpp" />
     <ClCompile Include="Events.cpp" />
-    <ClCompile Include="MyFunc.cpp" />
     <ClCompile Include="MyRegistry.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="string_wstring.cpp" />
-    <ClCompile Include="TGA_NativeMessaging_Cliant.cpp" />
+    <ClCompile Include="TGA_NMC_ForDebugging.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -164,7 +161,6 @@
     <ClInclude Include="Base64.h" />
     <ClInclude Include="Events.h" />
     <ClInclude Include="json.hpp" />
-    <ClInclude Include="MyFunc.h" />
     <ClInclude Include="MyRegistry.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

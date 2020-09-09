@@ -1,13 +1,17 @@
 #pragma once
 #include "pch.h"
-using namespace std;
+
 class App {
 public:
+    std::string TGA_AppData;
+    std::string NMC_AppData;
+    std::string MyAppData;
     int ID = -1;
-    string Key;
+    std::string Key;
     unsigned int PID = 0;
-    string GenerateKey();
+    std::string GenerateKey();
     void SetID(int id);
+    void SetAppData();
     App();
 };
 extern App app;

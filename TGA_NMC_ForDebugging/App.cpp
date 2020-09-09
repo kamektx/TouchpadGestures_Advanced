@@ -2,10 +2,6 @@
 #include "App.h"
 #include "MyRegistry.h"
 #include "Base32.h"
-#include <shlobj.h>
-
-using namespace std;
-
 App app = App();
 
 string App::GenerateKey() {
@@ -25,19 +21,6 @@ void App::SetID(int id) {
     registry.SetValue(registry.TGA_NMC, "NMC" + to_string(ID) + "_Key", Key);
     registry.SetValue(registry.TGA_NMC, "NMC" + to_string(ID) + "_PID", PID);
     registry.SetValue(registry.TGA_NMC, "NMC_Running", registry.NMC_Running + (1 << ID));
-    SetAppData();
-}
-void App::SetAppData() {
-    WCHAR path1[MAX_PATH];
-    SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, path1);
-    string LocalAppDataPath = utf8_encode(wstring(path1));
-    TGA_AppData = LocalAppDataPath + "\\TouchpadGestures_Advanced";
-    filesystem::create_directory(filesystem::path(TGA_AppData));
-    NMC_AppData = TGA_AppData + "\\NMC";
-    filesystem::create_directory(filesystem::path(NMC_AppData));
-    MyAppData = NMC_AppData + "\\" + Key;
-    filesystem::create_directory(filesystem::path(MyAppData));
-    filesystem::create_directory(filesystem::path(MyAppData + "\\screenshot"));
 }
 App::App() {
     Key = GenerateKey();

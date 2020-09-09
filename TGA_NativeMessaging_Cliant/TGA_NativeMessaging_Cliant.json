@@ -1,0 +1,9 @@
+{
+  "name": "TGA_NativeMessaging_Cliant",
+  "description": "Example host for native messaging",
+  "path": "Release/TGA_NativeMessaging_Cliant.exe",
+  "type": "stdio",
+  "allowed_extensions": [
+    "ping_pong@example.org"
+  ]
+}

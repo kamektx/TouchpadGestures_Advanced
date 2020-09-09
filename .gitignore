@@ -2,6 +2,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/csharp,c++,dotnetcore,windows,visualstudio
 # Edit at https://www.toptal.com/developers/gitignore?templates=csharp,c++,dotnetcore,windows,visualstudio
 
+screenshot/
+
 ### C++ ###
 # Prerequisites
 *.d

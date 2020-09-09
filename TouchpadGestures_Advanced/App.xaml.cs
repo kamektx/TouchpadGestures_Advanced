@@ -34,8 +34,10 @@ namespace TouchpadGestures_Advanced
             Registry_TGA_NMC_Values.Add("NMC_Running");
             Registry_TGA_NMC_Values.Add("Return_Key");
             Registry_TGA_NMC_Values.Add("Return_Command");
-            Registry_TGA_NMC_Values.Add("Return_Value");
+            Registry_TGA_NMC_Values.Add("Return_Value1");
+            Registry_TGA_NMC_Values.Add("Return_Value2");
             Registry_TGA_NMC_Values.Add("NMC_RunningMax");
+            Registry_TGA_NMC_Values.Add("NMC_ChangedKey");
         }
 
         protected override void OnStartup(StartupEventArgs e)
