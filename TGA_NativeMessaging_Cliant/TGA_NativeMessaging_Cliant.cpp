@@ -11,10 +11,6 @@ using namespace nlohmann;
 
 int main()
 {
-    string data = "unkoico;base64,aaaaaaaaa";
-    string format;
-    base64Decode(data, format);
-    cout << format;
 
     MyProcess TGA("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\bin\\Release\\netcoreapp3.1\\TouchpadGestures_Advanced.exe", "");
 

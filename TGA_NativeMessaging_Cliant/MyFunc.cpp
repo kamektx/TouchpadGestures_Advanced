@@ -30,9 +30,9 @@ std::string base64Decode(const std::string& in, string& formatOut) {
     stringstream ss;
     for (unsigned char c : in) {
         if (isBeforeData) {
-            ss << c;
+            ss << (char)c;
             if (c == ',') {
-                ss.str(dataType);
+                dataType = ss.str();
                 if (dataType.find("svg") != string::npos)
                 {
                     formatOut = "svg";
