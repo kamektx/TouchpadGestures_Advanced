@@ -85,15 +85,19 @@ DLLEXPORT int __stdcall HidManager(WPARAM wParam, LPARAM lParam, char* rjson, un
             HidP_GetUsagesEx(HidP_Input, linkCollection, usage_and_page, &usageLength, preparsedData, (PCHAR)raw->data.hid.bRawData, raw->data.hid.dwSizeHid);
             if (linkCollection <= ljson["ContactCount"].get<unsigned long>()) {
                 ljson["LinkCollection"][linkCollection - 1]["Tip"] = "off";
+                ljson["LinkCollection"][linkCollection - 1]["IsFinger"] = false;
             }
             else {
                 ljson["LinkCollection"][linkCollection - 1]["Tip"] = "no";
+                ljson["LinkCollection"][linkCollection - 1]["IsFinger"] = false;
             }
             for (size_t i = 0; i < usageLength; i++)
             {
                 if (usage_and_page[i].UsagePage == 0x0d && usage_and_page[i].Usage == 0x42) {
                     ljson["LinkCollection"][linkCollection - 1]["Tip"] = "on";
-                    break;
+                }
+                else if (usage_and_page[i].UsagePage == 0x0d && usage_and_page[i].Usage == 0x47) {
+                    ljson["LinkCollection"][linkCollection - 1]["IsFinger"] = true;
                 }
             }
         }

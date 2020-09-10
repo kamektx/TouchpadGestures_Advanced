@@ -22,6 +22,7 @@ namespace TouchpadGestures_Advanced
             public int X { get; set; }
             public int Y { get; set; }
             public string Tip { get; set; }
+            public bool IsFinger { get; set; }
             public double NX //Normalized X
             {
                 get { return X * 4096d / 1228d; } //todo: 1228 is LogicalMax of TouchPad's X. 
@@ -96,7 +97,18 @@ namespace TouchpadGestures_Advanced
             return _Mean;
         }
 
-
+        public void RemoveNotFinger()
+        {
+            for (int i = 0; i < ContactCount; i++)
+            {
+                if (LinkCollection[i].Tip != "no" && LinkCollection[i].IsFinger == false)
+                {
+                    LinkCollection.RemoveAt(i);
+                    ContactCount--;
+                    LinkCollection.Add(new CollectionData { X = 0, Y = 0, Tip = "no", IsFinger = false, ContactID = 0 });
+                }
+            }
+        }
     }
     internal static class Interpreter
     {
@@ -135,12 +147,12 @@ namespace TouchpadGestures_Advanced
                 {
                     oldContactID_LinkCollection[oldInputData.LinkCollection[i].ContactID] = i;
                 }
-                foreach (var item in nowContactID_LinkCollection)
+                foreach (var contactID_Index in nowContactID_LinkCollection)
                 {
-                    if (oldContactID_LinkCollection.ContainsKey(item.Key))
+                    if (oldContactID_LinkCollection.ContainsKey(contactID_Index.Key))
                     {
-                        nowLinkCollectionList.Add(item.Value);
-                        oldLinkCollectionList.Add(oldContactID_LinkCollection[item.Key]);
+                        nowLinkCollectionList.Add(contactID_Index.Value);
+                        oldLinkCollectionList.Add(oldContactID_LinkCollection[contactID_Index.Key]);
                     }
                 }
                 _Size += (inputData.Mean2(nowLinkCollectionList) - oldInputData.Mean2(oldLinkCollectionList)) * (Condition == Conditions.ignore ? Settings.IgnoreMagnification : 1d);
@@ -151,6 +163,7 @@ namespace TouchpadGestures_Advanced
         internal static void SetJson(string argJson)
         {
             _InputData = JsonSerializer.Deserialize<InputData>(argJson);
+            _InputData.RemoveNotFinger();
             Interpret();
         }
         internal static void Interpret()

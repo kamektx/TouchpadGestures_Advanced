@@ -11,6 +11,11 @@ using namespace nlohmann;
 
 int main()
 {
+    string data = "unkoico;base64,aaaaaaaaa";
+    string format;
+    base64Decode(data, format);
+    cout << format;
+
     MyProcess TGA("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\bin\\Release\\netcoreapp3.1\\TouchpadGestures_Advanced.exe", "");
 
     if (events.TGA_Init != NULL) {
@@ -92,6 +97,10 @@ int main()
             string format;
             string name = json1.at("Name").get<string>();
             string result = base64Decode(data, format);
+            ofstream logfile("log2.txt");
+            logfile << format << endl;
+            logfile << data << endl;
+            logfile.close();
             ofstream file(app.MyAppData + "\\favicon\\raw\\" + name + "." + format, ios::binary);
             file.write(result.c_str(), result.length());
             file.close();

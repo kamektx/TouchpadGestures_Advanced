@@ -25,7 +25,6 @@ void App::SetID(int id) {
     registry.SetValue(registry.TGA_NMC, "NMC" + to_string(ID) + "_Key", Key);
     registry.SetValue(registry.TGA_NMC, "NMC" + to_string(ID) + "_PID", PID);
     registry.SetValue(registry.TGA_NMC, "NMC_Running", registry.NMC_Running + (1 << ID));
-    SetAppData();
 }
 void App::SetAppData() {
     WCHAR path1[MAX_PATH];
@@ -44,4 +43,5 @@ void App::SetAppData() {
 }
 App::App() {
     Key = GenerateKey();
+    SetAppData();
 }

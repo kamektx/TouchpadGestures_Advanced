@@ -18,7 +18,7 @@ MyProcess::MyProcess(string appPath, string commandLine) {
         NULL,
         NULL,
         FALSE,
-        0,
+        CREATE_BREAKAWAY_FROM_JOB,
         NULL,
         NULL,
         &tStartupInfo,
