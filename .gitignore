@@ -5,6 +5,10 @@
 screenshot/
 !ImageMagickDll/
 !ImageMagickDll/*
+!ImageMagickDll/*.dll
+!ImageMagickDll/lib/
+!ImageMagickDll/lib/*
+!ImageMagickDll/lib/*.lib
 
 ### C++ ###
 # Prerequisites
@@ -587,3 +591,4 @@ $RECYCLE.BIN/
 # Ionide (cross platform F# VS Code tools) working folder
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,c++,dotnetcore,windows,visualstudio
+
