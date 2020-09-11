@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
                         maxWidth = width;
                         maxWidthIndex = i;
                     }
-                }
+                } // Get an image which has the biggest width in the ico file.
                 favicon.read(app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "[" + to_string(maxWidthIndex) + "]");
                 favicon.backgroundColor("none");
                 favicon.resize("64x64");
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
                 favicon.resize("64x64");
             }
             favicon.write(app.MyAppData + "\\favicon\\png\\" + name + ".png");
-
+            filesystem::remove(app.MyAppData + "\\favicon\\raw\\" + name + "." + format);
         }
         else if (jsonType == "SendingObject") {
             ofstream file(app.MyAppData + "\\sending_object.json", ios::binary);
