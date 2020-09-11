@@ -8,10 +8,11 @@
 
 using namespace std;
 using namespace nlohmann;
+using namespace Magick;
 
-int main()
+int main(int argc, char* argv[])
 {
-
+    InitializeMagick(argv[0]);
     MyProcess TGA("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\bin\\Release\\netcoreapp3.1\\TouchpadGestures_Advanced.exe", "");
 
     if (events.TGA_Init != NULL) {
@@ -101,7 +102,23 @@ int main()
             file.write(result.c_str(), result.length());
             file.close();
             if (format == "svg") {
+
                 MyProcess ImageMagick(app.TGA_AppData + "\\GraphicsMagick\\gm.exe", "convert -size 64x64 \"" + app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "\" \"" + app.MyAppData + "\\favicon\\png\\" + name + ".png\"");
+            }
+            else if (format == "ico") {
+                int numberOfImages = result.at(4);
+                int maxWidth = 0;
+                int maxWidthIndex = 0;
+                for (int i = 0; i < numberOfImages; i++)
+                {
+                    int width = result.at(6 + 16 * i);
+                    if (width == 0) width = 256;
+                    if (width > maxWidth) {
+                        maxWidth = width;
+                        maxWidthIndex = i;
+                    }
+                }
+                MyProcess ImageMagick(app.TGA_AppData + "\\GraphicsMagick\\gm.exe", "convert -alpha on -background none -flatten -resize 64x64 \"" + app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "\" \"" + app.MyAppData + "\\favicon\\png\\" + name + ".png\"");
             }
             else {
                 MyProcess ImageMagick(app.TGA_AppData + "\\GraphicsMagick\\gm.exe", "convert -resize 64x64 \"" + app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "\" \"" + app.MyAppData + "\\favicon\\png\\" + name + ".png\"");
