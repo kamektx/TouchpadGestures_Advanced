@@ -33,7 +33,6 @@
 #include <filesystem>
 
 #include "json.hpp"
-#include "Magick++.h"
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v) {

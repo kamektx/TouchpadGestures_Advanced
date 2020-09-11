@@ -3,6 +3,8 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=csharp,c++,dotnetcore,windows,visualstudio
 
 screenshot/
+!ImageMagickDll/
+!ImageMagickDll/*
 
 ### C++ ###
 # Prerequisites

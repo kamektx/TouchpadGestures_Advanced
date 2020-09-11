@@ -1,20 +1,36 @@
-﻿#include "pch.h"
+﻿/*
+* This program runs only "Release" build
+* because of ImageMagick's dll.
+*
+* Put the all contents of "ImageMagickDll" directory (exclude sub directories)
+* to the directry "Release" which contains exe file.
+*/
+
+#include "pch.h"
 #include "MyRegistry.h"
 #include "App.h"
 #include "Events.h"
 #include "MyFunc.h"
 #include "MyProcess.h"
 
+#include "Magick++.h"
 
 using namespace std;
 using namespace nlohmann;
 using namespace Magick;
 
+/* For debugging
+   (Don't use the word 'debug'. Compiler seems to ignore the file operation.)
+
+ofstream logfile("log2.txt");
+logfile <<  << endl;
+logfile.close();
+
+*/
+
 int main(int argc, char* argv[])
 {
     InitializeMagick(argv[0]);
-
-
 
     MyProcess TGA("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\bin\\Release\\netcoreapp3.1\\TouchpadGestures_Advanced.exe", "");
 
@@ -38,17 +54,6 @@ int main(int argc, char* argv[])
     stringstream ss;
     int count = 0;
     int countTemp = 0;
-    //auto thread1 = thread([&] {
-    //    while (true) {
-    //        this_thread::sleep_for(chrono::milliseconds(5000));
-    //        ofstream file("log.txt");
-    //        file << count << "\n";
-    //        file << ss.str();
-    //        file.close();
-    //    }
-    //    return;
-    //    }
-    //);
     auto thread2 = thread([&] {
         while (true) {
             int maxloop = 100;
@@ -97,35 +102,39 @@ int main(int argc, char* argv[])
             string format;
             string name = json1.at("Name").get<string>();
             string result = base64Decode(data, format);
-            ofstream logfile("log2.txt");
-            logfile << format << endl;
-            logfile << data << endl;
-            logfile.close();
             ofstream file(app.MyAppData + "\\favicon\\raw\\" + name + "." + format, ios::binary);
             file.write(result.c_str(), result.length());
             file.close();
+            Image favicon;
             if (format == "svg") {
-
-                MyProcess ImageMagick(app.TGA_AppData + "\\GraphicsMagick\\gm.exe", "convert -size 64x64 \"" + app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "\" \"" + app.MyAppData + "\\favicon\\png\\" + name + ".png\"");
+                favicon.size("64x64");
+                favicon.backgroundColor("none");
+                favicon.read(app.MyAppData + "\\favicon\\raw\\" + name + "." + format);
             }
-            //else if (format == "ico") {
-            //    int numberOfImages = result.at(4);
-            //    int maxWidth = 0;
-            //    int maxWidthIndex = 0;
-            //    for (int i = 0; i < numberOfImages; i++)
-            //    {
-            //        int width = result.at(6 + 16 * i);
-            //        if (width == 0) width = 256;
-            //        if (width > maxWidth) {
-            //            maxWidth = width;
-            //            maxWidthIndex = i;
-            //        }
-            //    }
-            //    MyProcess ImageMagick(app.TGA_AppData + "\\GraphicsMagick\\gm.exe", "convert -background none -flatten -resize 64x64 \"" + app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "\" \"" + app.MyAppData + "\\favicon\\png\\" + name + ".png\"");
-            //}
+            else if (format == "ico") {
+                int numberOfImages = result.at(4);
+                int maxWidth = 0;
+                int maxWidthIndex = 0;
+                for (int i = 0; i < numberOfImages; i++)
+                {
+                    int width = result.at(6 + 16 * i);
+                    if (width == 0) width = 256;
+                    if (width > maxWidth) {
+                        maxWidth = width;
+                        maxWidthIndex = i;
+                    }
+                }
+                favicon.read(app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "[" + to_string(maxWidthIndex) + "]");
+                favicon.backgroundColor("none");
+                favicon.resize("64x64");
+            }
             else {
-                MyProcess ImageMagick(app.TGA_AppData + "\\GraphicsMagick\\gm.exe", "convert -resize 64x64 \"" + app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "\" \"" + app.MyAppData + "\\favicon\\png\\" + name + ".png\"");
+                favicon.read(app.MyAppData + "\\favicon\\raw\\" + name + "." + format);
+                favicon.backgroundColor("none");
+                favicon.resize("64x64");
             }
+            favicon.write(app.MyAppData + "\\favicon\\png\\" + name + ".png");
+
         }
         else if (jsonType == "SendingObject") {
             ofstream file(app.MyAppData + "\\sending_object.json", ios::binary);
