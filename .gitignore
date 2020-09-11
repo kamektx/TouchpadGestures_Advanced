@@ -3,12 +3,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=csharp,c++,dotnetcore,windows,visualstudio
 
 screenshot/
-!ImageMagickDll/
-!ImageMagickDll/*
-!ImageMagickDll/*.dll
-!ImageMagickDll/lib/
-!ImageMagickDll/lib/*
-!ImageMagickDll/lib/*.lib
+
 
 ### C++ ###
 # Prerequisites
@@ -592,3 +587,9 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,c++,dotnetcore,windows,visualstudio
 
+!ImageMagickDll/
+!**/ImageMagickDll/*
+!**/ImageMagickDll/*.dll
+!**/ImageMagickDll/lib/
+!**/ImageMagickDll/lib/*
+!**/ImageMagickDll/lib/*.lib
