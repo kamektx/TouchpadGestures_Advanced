@@ -4,6 +4,8 @@
              xmlns:local="clr-namespace:TouchpadGestures_Advanced"
              Startup="ApplicationStartup">
     <Application.Resources>
-         
+        <Style x:Key="CommonIcon" TargetType="Window">
+            <Setter Property="Icon" Value="Icon/TGA_icon.ico"/>
+        </Style>
     </Application.Resources>
 </Application>

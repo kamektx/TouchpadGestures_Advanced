@@ -20,9 +20,12 @@ namespace TouchpadGestures_Advanced
         private static bool MutexHasHandle = false;
         public static RegistryKey Registry_TGA;
         public static RegistryKey Registry_TGA_NMC;
+        public static string TGA_AppData;
+        public static string NMC_AppData;
         public static List<string> Registry_TGA_NMC_Values = new List<string>();
         public static int NMC_RunningMax = 31;
         public static Dispatcher DispatcherNow = new Dispatcher("default");
+        public static MyNotifyIcon myNotifyIcon;
 
         private static void Registry_TGA_NMC_Values_Init()
         {
@@ -65,6 +68,10 @@ namespace TouchpadGestures_Advanced
                 return;
             }
 
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            TGA_AppData = appData + @"\TouchpadGestures_Advanced";
+            NMC_AppData = TGA_AppData + @"\NMC";
+
             Registry_TGA = Registry.CurrentUser.CreateSubKey("SOFTWARE\\TouchpadGestures_Advanced", true);
             Registry_TGA_NMC = Registry.CurrentUser.CreateSubKey("SOFTWARE\\TouchpadGestures_Advanced\\NativeMessaging_Cliant", true);
             Registry_TGA_NMC_Values_Init();
@@ -86,6 +93,8 @@ namespace TouchpadGestures_Advanced
                     }
                 }
             }
+
+            myNotifyIcon = new MyNotifyIcon();
 
             base.OnStartup(e);
         }

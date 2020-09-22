@@ -23,7 +23,7 @@ namespace TouchpadGestures_Advanced
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : OverlayWindow
     {
         internal static WindowInteropHelper _helper;
         internal void RawInputActivater(object sender, EventArgs e)
@@ -34,14 +34,15 @@ namespace TouchpadGestures_Advanced
         }
         internal void OnContentRenderdTask(object sender, EventArgs e)
         {
-            NativeMessaging.KilledNMC_Detector();
+            NativeMessaging.Timer();
+            ForegroundWindowWatcher.SubscribeToWindowEvents();
         }
-        public MainWindow()
+        public MainWindow() : base()
         {
             InitializeComponent();
             _helper = new WindowInteropHelper(this);
             ContentRendered += RawInputActivater;
-            ContentRendered += OnContentRenderdTask;
+            ContentRendered += OnContentRenderdTask;      
         }
     }
 
