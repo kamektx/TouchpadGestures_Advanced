@@ -17,7 +17,7 @@ namespace TouchpadGestures_Advanced
         nativeMessaging,
         dontHandle
     }
-    public class Dispatcher
+    public class MyDispatcher
     {
         public Dictionary<Direction, DispatcherType> Type;
         public Dictionary<Direction, MyAction> DirectionAction;
@@ -74,7 +74,7 @@ namespace TouchpadGestures_Advanced
             IsActive = false;
         }
 
-        public Dispatcher(string str)
+        public MyDispatcher(string str)
         {
             Type = new Dictionary<Direction, DispatcherType>();
             DirectionAction = new Dictionary<Direction, MyAction>();

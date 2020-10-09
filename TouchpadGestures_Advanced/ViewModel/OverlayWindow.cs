@@ -121,7 +121,7 @@ namespace TouchpadGestures_Advanced
 
         public OverlayWindow()
         {
-
+            this.Visibility = Visibility.Hidden;
             // 透過背景
             this.WindowStyle = WindowStyle.None;
             this.AllowsTransparency = true;
@@ -158,7 +158,7 @@ namespace TouchpadGestures_Advanced
 
         protected virtual IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr IParam, ref bool handled)
         {
-
+            handled = false;
             //Alt + F4 が入力されたら
             if (msg == WM_SYSKEYDOWN && wParam.ToInt32() == VK_F4)
             {

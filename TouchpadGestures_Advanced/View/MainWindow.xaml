@@ -6,6 +6,6 @@
         xmlns:local="clr-namespace:TouchpadGestures_Advanced"
         mc:Ignorable="d"
         Topmost="False"
-        WindowState="Normal"
+        WindowState="Minimized"
         Title="MainWindow" Height="100" Width="150">
 </local:OverlayWindow>

@@ -19,6 +19,7 @@ namespace TouchpadGestures_Advanced
 
         internal static IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
+            handled = false;
             switch (msg)
             {
                 case WM_INPUT:
@@ -31,6 +32,7 @@ namespace TouchpadGestures_Advanced
                     }
                     NativeMethods.HidManager(wParam, lParam, rjson, length);
                     Interpreter.SetJson(rjson.ToString());
+                    handled = true;
                     break;
             }
             return IntPtr.Zero;

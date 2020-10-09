@@ -28,11 +28,12 @@ namespace TouchpadGestures_Advanced
         internal static WindowInteropHelper _helper;
         internal void RawInputActivater(object sender, EventArgs e)
         {
+            _helper = new WindowInteropHelper(this);
             HwndSource source = HwndSource.FromHwnd(_helper.Handle);
             source.AddHook(ControlHost.WindowProc);
             NativeMethods.RegisterRawInput(_helper.Handle);
         }
-        internal void OnContentRenderdTask(object sender, EventArgs e)
+        internal void OtherTasks(object sender, EventArgs e)
         {
             NativeMessaging.Timer();
             ForegroundWindowWatcher.SubscribeToWindowEvents();
@@ -40,9 +41,8 @@ namespace TouchpadGestures_Advanced
         public MainWindow() : base()
         {
             InitializeComponent();
-            _helper = new WindowInteropHelper(this);
-            ContentRendered += RawInputActivater;
-            ContentRendered += OnContentRenderdTask;      
+            SourceInitialized += RawInputActivater;
+            SourceInitialized += OtherTasks;
         }
     }
 

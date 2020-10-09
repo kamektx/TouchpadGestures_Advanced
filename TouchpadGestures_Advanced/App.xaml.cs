@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Windows;
 using Microsoft.Win32;
+using System.IO;
 
 namespace TouchpadGestures_Advanced
 {
@@ -24,8 +25,13 @@ namespace TouchpadGestures_Advanced
         public static string NMC_AppData;
         public static List<string> Registry_TGA_NMC_Values = new List<string>();
         public static int NMC_RunningMax = 31;
-        public static Dispatcher DispatcherNow = new Dispatcher("default");
+        public static MyDispatcher DispatcherNow = new MyDispatcher("default");
         public static MyNotifyIcon myNotifyIcon;
+        public static int PrimaryWorkingAreaWidth = (int)SystemParameters.WorkArea.Width;
+        public static int PrimaryWorkingAreaHeight = (int)SystemParameters.WorkArea.Height; 
+        public static int ForBrowserMaxHeight = PrimaryWorkingAreaHeight - 200; 
+        public static int ForBrowserMaxWidth = PrimaryWorkingAreaHeight - 200;
+        public static int MaxRowsOfTabWithImage = ForBrowserMaxHeight / 165;
 
         private static void Registry_TGA_NMC_Values_Init()
         {
@@ -62,6 +68,7 @@ namespace TouchpadGestures_Advanced
             {
 
             }
+            //File.WriteAllText(@"C:\Users\TakumiK\source\repos\TouchpadGestures_Advanced\TouchpadGestures_Advanced\unkomitaina.txt", "mutex error.");
             if (!MutexHasHandle)
             {
                 this.Shutdown(0);

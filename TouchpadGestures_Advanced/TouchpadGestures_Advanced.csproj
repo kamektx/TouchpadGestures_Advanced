@@ -21,7 +21,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MathConverter" Version="2.1.0-alpha0001" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="WpfScreenHelper" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +33,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Update="ViewModel\ForBrowser.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="ViewModel\TabSmall.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="ViewModel\TabWithImage2.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

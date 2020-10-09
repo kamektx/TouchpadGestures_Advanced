@@ -89,6 +89,7 @@ namespace TouchpadGestures_Advanced
                 }
             }
             public bool IsActive { get; set; }
+            public int? LastCapturedTab { get; set; }
             public int WindowID { get; set; }
             public int? ActiveTabID { get; set; }
             public List<int> RecentTabs { get; set; }
@@ -102,7 +103,22 @@ namespace TouchpadGestures_Advanced
                 public int WindowID { get; set; }
                 public int TabID { get; set; }
                 public string Status { get; set; }
-                public string ScreenShot { get; set; }
+                private string _ScreenShot;
+                public string ScreenShot
+                {
+                    get
+                    {
+                        return _ScreenShot;
+                    }
+                    set
+                    {
+                        _ScreenShot = value;
+                        if (NativeMessaging.NMCs.ContainsKey(NativeMessaging.DeserializingNMC_Key))
+                        {
+                            NativeMessaging.NMCs[NativeMessaging.DeserializingNMC_Key].UsingScreenShot.Add(value);
+                        }
+                    }
+                }
                 public string Title { get; set; }
                 public string URL { get; set; }
                 public string Favicon { get; set; }
