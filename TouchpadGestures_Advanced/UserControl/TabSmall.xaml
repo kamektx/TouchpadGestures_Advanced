@@ -1,22 +1,21 @@
-﻿<UserControl x:Class="TouchpadGestures_Advanced.TabSmall"
-             x:Name="UserControl"
+﻿<local:TabCommon x:Class="TouchpadGestures_Advanced.TabSmall"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:math="http://hexinnovation.com/math"
              xmlns:local="clr-namespace:TouchpadGestures_Advanced"
              mc:Ignorable="d" 
              d:Width="300"
              d:DataContext="{d:DesignInstance {x:Type local:TabSmallData}, 
      IsDesignTimeCreatable=True}"
-             d:Background="#c5000000">
-    <UserControl.Resources>
+             d:Background="#c5000000"
+             x:Name="UserControl">
+    <local:TabCommon.Resources>
         <Style TargetType="Border" x:Key="MyBorder">
             <Setter Property="Padding" Value="{Binding Path=MyBorderPadding}" />
             <Setter Property="BorderThickness" Value="{Binding Path=MyBorderThickness}"/>
         </Style>
-    </UserControl.Resources>
+    </local:TabCommon.Resources>
 
     <Grid>
         <Grid>
@@ -31,11 +30,11 @@
             <Border Grid.Row="1" Style="{StaticResource MyBorder}" BorderBrush="White" VerticalAlignment="Stretch" MaxHeight="{Binding ElementName=UserControl, Path=MaxHeight}">
                 <Grid VerticalAlignment="Stretch" Margin="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="{Binding Path=FaviconGridWidthAndHeight}"/>
+                        <ColumnDefinition Width="{Binding Path=FaviconGridWidth}"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="{Binding Path=FaviconGridWidthAndHeight}"/>
+                        <RowDefinition Height="{Binding Path=FaviconGridHeight}"/>
                     </Grid.RowDefinitions>
 
                     <Image Height="{Binding Path=FaviconWidthAndHeight}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="MyFavicon">
@@ -46,4 +45,4 @@
             </Border>
         </Grid>
     </Grid>
-</UserControl>
+</local:TabCommon>

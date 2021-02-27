@@ -23,13 +23,16 @@ namespace TouchpadGestures_Advanced
             switch (msg)
             {
                 case WM_INPUT:
-                    uint length = 5000;
-                    var rjson = new StringBuilder((int)length);
                     if (isFirstTime)
                     {
-                        //init
+                        uint length2 = 1000;
+                        var rjson2 = new StringBuilder((int)length2);
+                        NativeMethods.HidInit(wParam, lParam, rjson2, length2);
+                        Interpreter.InitJson(rjson2.ToString());
                         isFirstTime = false;
                     }
+                    uint length = 5000;
+                    var rjson = new StringBuilder((int)length);
                     NativeMethods.HidManager(wParam, lParam, rjson, length);
                     Interpreter.SetJson(rjson.ToString());
                     handled = true;

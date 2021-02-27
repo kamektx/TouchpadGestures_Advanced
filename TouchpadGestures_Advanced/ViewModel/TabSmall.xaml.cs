@@ -10,22 +10,17 @@ namespace TouchpadGestures_Advanced
     /// <summary>
     /// TabWithImage.xaml の相互作用ロジック
     /// </summary>
-    public partial class TabSmall : UserControl
+    public partial class TabSmall : TabCommon
     {
-        public SendingObject.MyWindow.MyTab MyTab;
-        public NMC_Manager MyNMC;
         public TabSmallData MyData;
-        public StackPanel MySP;
         public BitmapImage MyFaviconSource;
-        public TabSmall(NMC_Manager myNMC, SendingObject.MyWindow.MyTab myTab, StackPanel sp)
+        public TabSmall(NMC_Manager myNMC, SendingObject.MyWindow.MyTab myTab, StackPanel sp, StackPanel wrapperSP, ForBrowser forBrowser, int rowIndex, int columnIndex, int tabIndex, int columnsIndex)
+        :base(myNMC, myTab, sp, wrapperSP, forBrowser, rowIndex, columnIndex, tabIndex, columnsIndex)
         {
-            this.MyNMC = myNMC;
-            this.MyTab = myTab;
-            this.MySP = sp;
             this.MyData = new TabSmallData();
             this.DataContext = this.MyData;
             InitializeComponent();
-            if (MyTab.IsActive.HasValue && MyTab.IsActive.Value)
+            if (MyTab.IsActive)
             {
                 this.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#4a4d8eff"));
             }
@@ -49,7 +44,8 @@ namespace TouchpadGestures_Advanced
     {
         public int MyBorderThickness { get; set; } = 2;
         public int MyBorderPadding { get; set; } = 5;
-        public int FaviconGridWidthAndHeight { get; set; } = 28;
+        public int FaviconGridWidth { get; set; } = 28;
+        public int FaviconGridHeight { get; set; } = 24;
         public int FaviconWidthAndHeight { get; set; } = 24;
 
         public event PropertyChangedEventHandler PropertyChanged;

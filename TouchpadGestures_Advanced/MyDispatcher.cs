@@ -7,20 +7,28 @@ using System.Text.Json;
 using System.Drawing;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.IO;
+using System.Threading;
 
 namespace TouchpadGestures_Advanced
 {
 
-    public enum DispatcherType
+    public enum ActionType
     {
+        dontHandle,
         shortcut,
-        nativeMessaging,
-        dontHandle
+        nativeMessaging
+    }
+    public class MyDispatcherData
+    {
+        public Dictionary<Direction, ActionType> ActionType { get; set; }
+        public Dictionary<Direction, MyAction> DirectionAction { get; set; }
     }
     public class MyDispatcher
     {
-        public Dictionary<Direction, DispatcherType> Type;
-        public Dictionary<Direction, MyAction> DirectionAction;
+        public MyDispatcherData Data;
+
         public Direction FirstDirection;
         public bool IsActive = false;
         public int VerticalThreshold
@@ -29,11 +37,11 @@ namespace TouchpadGestures_Advanced
             {
                 if (IsActive)
                 {
-                    return DirectionAction[FirstDirection].VerticalThreshold;
+                    return Data.DirectionAction[FirstDirection].VerticalThreshold;
                 }
                 else
                 {
-                    return Settings.VerticalThresholdSmall;
+                    return App.Settings.VerticalThresholdSmall;
                 }
             }
         }
@@ -43,25 +51,26 @@ namespace TouchpadGestures_Advanced
             {
                 if (IsActive)
                 {
-                    return DirectionAction[FirstDirection].HorizontalThreshold;
+                    return Data.DirectionAction[FirstDirection].HorizontalThreshold;
                 }
                 else
                 {
-                    return Settings.HorizontalThreshold;
+                    return App.Settings.HorizontalThreshold;
                 }
             }
         }
-        public void FirstStroke(Direction direction)
+        public ActionType FirstStroke(Direction direction)
         {
             IsActive = true;
             FirstDirection = direction;
-            DirectionAction[direction].FirstStroke(direction);
+            Data.DirectionAction[direction].FirstStroke(direction);
+            return Data.ActionType[direction];
         }
         public void Stroke(Direction direction)
         {
             if (IsActive)
             {
-                DirectionAction[FirstDirection].Stroke(direction);
+                Data.DirectionAction[FirstDirection].Stroke(direction);
             }
             else
             {
@@ -70,39 +79,71 @@ namespace TouchpadGestures_Advanced
         }
         public void Inactivate()
         {
-            DirectionAction[FirstDirection].Inactivate();
+            Data.DirectionAction[FirstDirection].Inactivate();
             IsActive = false;
         }
 
         public MyDispatcher(string str)
         {
-            Type = new Dictionary<Direction, DispatcherType>();
-            DirectionAction = new Dictionary<Direction, MyAction>();
-            if (str == "default")
+            //Data = new MyDispatcherData();
+            //Data.ActionType = new Dictionary<Direction, ActionType>();
+            //Data.DirectionAction = new Dictionary<Direction, MyAction>();
+            //Data.ActionType[Direction.down] = ActionType.shortcut;
+            //Data.ActionType[Direction.up] = ActionType.shortcut;
+            //Data.ActionType[Direction.left] = ActionType.dontHandle;
+            //Data.ActionType[Direction.right] = ActionType.dontHandle;
+            //Data.ActionType[Direction.up] = ActionType.shortcut;
+            //Data.DirectionAction[Direction.down] = new Shortcut(
+            //    new List<int> { (int)Tools.Key.LeftControl },
+            //    new Dictionary<Direction, List<int>> {
+            //            { Direction.down, new List<int> { (int)Tools.Key.Tab } },
+            //            { Direction.up, new List<int> { (int)Tools.Key.LeftShift, (int)Tools.Key.Tab } }
+            //    }
+            //);
+            //Data.DirectionAction[Direction.up] = new Shortcut(
+            //    new List<int> { (int)Tools.Key.LeftControl },
+            //    new Dictionary<Direction, List<int>> {
+            //            { Direction.down, new List<int> { (int)Tools.Key.Tab } },
+            //            { Direction.up, new List<int> { (int)Tools.Key.LeftShift, (int)Tools.Key.Tab } }
+            //    }
+            //);
+            //File.WriteAllText(App.TGA_AppData + @"\AppSettings\default.json", JsonConvert.SerializeObject(Data, new JsonSerializerSettings
+            //{
+            //    TypeNameHandling = TypeNameHandling.Auto
+            //}));
+
+            string appSettingJSON = null;
+            string settingPath = null;
+            if (File.Exists(App.TGA_AppData + @"\AppSettings\" + str + @".json"))
             {
-                Type[Direction.down] = DispatcherType.shortcut;
-                Type[Direction.up] = DispatcherType.shortcut;
-                Type[Direction.left] = DispatcherType.dontHandle;
-                Type[Direction.right] = DispatcherType.dontHandle;
-                DirectionAction[Direction.down] = new Shortcut(
-                    new List<int> { (int)Tools.Key.LeftControl },
-                    new Dictionary<Direction, List<int>> {
-                        { Direction.down, new List<int> { (int)Tools.Key.Tab } },
-                        { Direction.up, new List<int> { (int)Tools.Key.LeftShift, (int)Tools.Key.Tab } }
-                    }
-                );
-                DirectionAction[Direction.up] = new Shortcut(
-                    new List<int> { (int)Tools.Key.LeftControl },
-                    new Dictionary<Direction, List<int>> {
-                        { Direction.down, new List<int> { (int)Tools.Key.Tab } },
-                        { Direction.up, new List<int> { (int)Tools.Key.LeftShift, (int)Tools.Key.Tab } }
-                    }
-                );
+                settingPath = App.TGA_AppData + @"\AppSettings\" + str + @".json";
             }
             else
             {
-                throw new ArgumentException("今のとこdefaultしかないよ");
+                settingPath = App.TGA_AppData + @"\AppSettings\default.json";
             }
+            int count = 0;
+            do
+            {
+                try
+                {
+                    appSettingJSON = File.ReadAllText(settingPath, Encoding.UTF8);
+                }
+                catch (IOException)
+                {
+                    count++;
+                    if (count > 100)
+                    {
+                        throw;
+                    }
+                    Thread.Sleep(5);
+                    continue;
+                }
+            } while (false);
+            Data = JsonConvert.DeserializeObject<MyDispatcherData>(appSettingJSON, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto
+            });
         }
     }
 }

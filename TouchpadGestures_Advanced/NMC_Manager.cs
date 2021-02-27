@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Documents.DocumentStructures;
 using System.Windows.Threading;
 
 #pragma warning disable CS4014
@@ -23,7 +24,7 @@ namespace TouchpadGestures_Advanced
         public int WindowState;
         public HashSet<string> UsingScreenShot;
 
-        public readonly object SyncObj;
+        public SemaphoreSlim MySemaphore;
         public FileSystemWatcher Watcher;
         public SendingObject SendingObject { get; private set; }
         public int ID { get; private set; }
@@ -35,42 +36,42 @@ namespace TouchpadGestures_Advanced
         {
             get
             {
-                lock (SyncObj)
+                MySemaphore.Wait();
+                if (SendingObject == null)
                 {
-                    if (SendingObject == null)
-                    {
-                        return false;
-                    }
-                    return SendingObject.ActiveWindowID.HasValue;
+                    return false;
                 }
+                bool temp = SendingObject.ActiveWindowID.HasValue;
+                MySemaphore.Release();
+                return temp;
             }
         }
         public bool AssertRunning()
         {
-            lock (SyncObj)
+            MySemaphore.Wait();
+            IsRunning = true;
+            try
             {
-                IsRunning = true;
-                try
-                {
-                    Process _NMC = Process.GetProcessById(PID);
-                    if (_NMC.HasExited || _NMC.ProcessName != "TGA_NativeMessaging_Cliant")
-                    {
-                        IsRunning = false;
-                    }
-                }
-                catch (Exception)
+                Process _NMC = Process.GetProcessById(PID);
+                if (_NMC.HasExited || _NMC.ProcessName != "TGA_NativeMessaging_Cliant")
                 {
                     IsRunning = false;
                 }
-                if (IsRunning == false)
-                {
-                    NativeMessaging.DeleteNMC(this);
-                }
-                return IsRunning;
             }
+            catch (Exception)
+            {
+                IsRunning = false;
+            }
+            if (IsRunning == false)
+            {
+                NativeMessaging.DeleteNMC(this);
+            }
+            MySemaphore.Release();
+            return IsRunning;
         }
         public void ReadJSON()
         {
+            MySemaphore.Wait();
             string sendingObjectJSON = null;
             int count = 0;
             do
@@ -92,22 +93,21 @@ namespace TouchpadGestures_Advanced
             } while (false);
             if (sendingObjectJSON != null && sendingObjectJSON[0] != '未')
             {
-                lock (SyncObj)
+                lock (NativeMessaging.SyncObj)
                 {
-                    lock (NativeMessaging.SyncObj)
-                    {
-                        UsingScreenShot.Clear();
-                        NativeMessaging.DeserializingNMC_Key = Key;
-                        SendingObject = JsonConvert.DeserializeObject<SendingObject>(sendingObjectJSON);
-                    }
-                    while (ForBrowserWindow == null)
-                    {
-                        Thread.Sleep(5);
-                        Debug.WriteLine("ForBrowserWindow == null");
-                    }
-                    ForBrowserWindow.Dispatcher.BeginInvoke(ForBrowserWindow.Refresh);
+                    UsingScreenShot.Clear();
+                    NativeMessaging.DeserializingNMC_Key = Key;
+                    SendingObject = JsonConvert.DeserializeObject<SendingObject>(sendingObjectJSON);
                 }
+                while (ForBrowserWindow == null)
+                {
+                    Thread.Sleep(5);
+                    Debug.WriteLine("ForBrowserWindow == null");
+                }
+                ForBrowserWindow.Dispatcher.BeginInvoke(ForBrowserWindow.Refresh);
+
             }
+            MySemaphore.Release();
         }
         public async Task StartDirectoryWatch()
         {
@@ -153,7 +153,7 @@ namespace TouchpadGestures_Advanced
             UsingScreenShot = new HashSet<string>();
             WindowState = 0;
             Watcher = new FileSystemWatcher();
-            SyncObj = new object();
+            MySemaphore = new SemaphoreSlim(1, 1);
             Key = key;
             ID = id;
             PID = (int)App.Registry_TGA_NMC.GetValue("NMC" + ID + "_PID");

@@ -30,17 +30,17 @@ namespace TouchpadGestures_Advanced
         }
         public bool IsDirection(Direction direction)
         {
-            if (Abs < Settings.ThresholdActive) return false;
+            if (Abs < App.Settings.ThresholdActive) return false;
             switch (direction)
             {
                 case Direction.down:
-                    return 90 - Settings.ThresholdAngle / 2 < ArgDeg && ArgDeg < 90 + Settings.ThresholdAngle / 2;
+                    return 90 - App.Settings.ThresholdAngle / 2 < ArgDeg && ArgDeg < 90 + App.Settings.ThresholdAngle / 2;
                 case Direction.up:
-                    return -90 - Settings.ThresholdAngle / 2 < ArgDeg && ArgDeg < -90 + Settings.ThresholdAngle / 2;
+                    return -90 - App.Settings.ThresholdAngle / 2 < ArgDeg && ArgDeg < -90 + App.Settings.ThresholdAngle / 2;
                 case Direction.right:
-                    return -Settings.ThresholdAngle / 2 < ArgDeg && ArgDeg < Settings.ThresholdAngle / 2;
+                    return -App.Settings.ThresholdAngle / 2 < ArgDeg && ArgDeg < App.Settings.ThresholdAngle / 2;
                 case Direction.left:
-                    return 180 - Settings.ThresholdAngle / 2 < ArgDeg || ArgDeg < -180 + Settings.ThresholdAngle / 2;
+                    return 180 - App.Settings.ThresholdAngle / 2 < ArgDeg || ArgDeg < -180 + App.Settings.ThresholdAngle / 2;
                 default:
                     return false;
             }

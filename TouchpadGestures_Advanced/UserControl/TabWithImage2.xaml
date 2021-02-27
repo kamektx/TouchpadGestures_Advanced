@@ -1,23 +1,22 @@
-﻿<UserControl x:Class="TouchpadGestures_Advanced.TabWithImage2"
-             x:Name="UserControl"
+﻿<local:TabCommon x:Class="TouchpadGestures_Advanced.TabWithImage2"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:math="http://hexinnovation.com/math"
              xmlns:local="clr-namespace:TouchpadGestures_Advanced"
              mc:Ignorable="d" 
              d:Width="300"
              MaxHeight="350"
              d:DataContext="{d:DesignInstance {x:Type local:TabWithImage2Data}, 
      IsDesignTimeCreatable=True}"
-             d:Background="#c5000000">
-    <UserControl.Resources>
+             d:Background="#c5000000"
+             x:Name="UserControl">
+    <local:TabCommon.Resources>
         <Style TargetType="Border" x:Key="MyBorder">
             <Setter Property="Padding" Value="{Binding Path=MyBorderPadding}" />
             <Setter Property="BorderThickness" Value="{Binding Path=MyBorderThickness}"/>
         </Style>
-    </UserControl.Resources>
+    </local:TabCommon.Resources>
 
     <Grid>
         <Grid>
@@ -51,4 +50,4 @@
             </Border>
         </Grid>
     </Grid>
-</UserControl>
+</local:TabCommon>

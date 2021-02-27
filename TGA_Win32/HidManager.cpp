@@ -1,5 +1,6 @@
 #include "pch.h"
 DLLEXPORT int __stdcall HidManager(WPARAM wParam, LPARAM lParam, char* r_json, unsigned int length);
+DLLEXPORT int __stdcall HidInit(WPARAM wParam, LPARAM lParam, char* r_json, unsigned int length);
 
 using namespace nlohmann;
 using namespace std;
@@ -35,14 +36,10 @@ DLLEXPORT int __stdcall HidManager(WPARAM wParam, LPARAM lParam, char* rjson, un
         HIDP_CAPS caps;
         HidP_GetCaps(preparsedData, &caps);
         USHORT valueCapsLength = caps.NumberInputValueCaps;
-        //USHORT buttonCapsLength = caps.NumberInputButtonCaps;
         HANDLE valueCaps_handle = GetProcessHeap();
         PHIDP_VALUE_CAPS valueCaps = (PHIDP_VALUE_CAPS)HeapAlloc(valueCaps_handle, 0, valueCapsLength * sizeof(HIDP_VALUE_CAPS));
-        //HANDLE buttonCaps_handle = GetProcessHeap();
-        //PHIDP_BUTTON_CAPS buttonCaps = (PHIDP_BUTTON_CAPS)HeapAlloc(buttonCaps_handle, 0, buttonCapsLength * sizeof(HIDP_BUTTON_CAPS));
 
         HidP_GetValueCaps(HidP_Input, valueCaps, &valueCapsLength, preparsedData);
-        //HidP_GetButtonCaps(HidP_Input, buttonCaps, &buttonCapsLength, preparsedData);
         for (int i = 0; i < valueCapsLength; i++) {
             ULONG value;
             USHORT valuelength = valueCaps[i].BitSize * valueCaps[i].ReportCount;
@@ -99,6 +96,59 @@ DLLEXPORT int __stdcall HidManager(WPARAM wParam, LPARAM lParam, char* rjson, un
                 else if (usage_and_page[i].UsagePage == 0x0d && usage_and_page[i].Usage == 0x47) {
                     ljson["LinkCollection"][linkCollection - 1]["IsFinger"] = true;
                 }
+            }
+        }
+        strcpy_s(rjson, length, ljson.dump().c_str());
+        HeapFree(preparsedData_handle, 0, preparsedData);
+        HeapFree(valueCaps_handle, 0, valueCaps);
+    }
+
+    delete[] lpb;
+    return 0;
+}
+DLLEXPORT int __stdcall HidInit(WPARAM wParam, LPARAM lParam, char* rjson, unsigned int length)
+{
+    json ljson;
+
+    UINT dwSize;
+
+    GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize,
+        sizeof(RAWINPUTHEADER));
+    LPBYTE lpb = new BYTE[dwSize];
+    if (lpb == NULL)
+    {
+        return 0;
+    }
+
+    if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
+    {
+        OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
+    }
+
+    RAWINPUT* raw = (RAWINPUT*)lpb;
+
+    if (raw->header.dwType == RIM_TYPEHID)
+    {
+        GetRawInputDeviceInfo(raw->header.hDevice, RIDI_PREPARSEDDATA, NULL, &dwSize);
+        HANDLE preparsedData_handle = GetProcessHeap();
+        PHIDP_PREPARSED_DATA preparsedData = (PHIDP_PREPARSED_DATA)HeapAlloc(preparsedData_handle, 0, dwSize);
+        GetRawInputDeviceInfo(raw->header.hDevice, RIDI_PREPARSEDDATA, preparsedData, &dwSize);
+
+        HIDP_CAPS caps;
+        HidP_GetCaps(preparsedData, &caps);
+        USHORT valueCapsLength = caps.NumberInputValueCaps;
+        HANDLE valueCaps_handle = GetProcessHeap();
+        PHIDP_VALUE_CAPS valueCaps = (PHIDP_VALUE_CAPS)HeapAlloc(valueCaps_handle, 0, valueCapsLength * sizeof(HIDP_VALUE_CAPS));
+        HidP_GetValueCaps(HidP_Input, valueCaps, &valueCapsLength, preparsedData);
+        for (int i = 0; i < valueCapsLength; i++) {
+            auto theCaps = valueCaps[i];
+            if (theCaps.LinkCollection == 1 && theCaps.UsagePage == 0x01 && theCaps.NotRange.Usage == 0x30) {
+                ljson["XLogicalMax"] = theCaps.LogicalMax;
+            }else if (theCaps.LinkCollection == 1 && theCaps.UsagePage == 0x01 && theCaps.NotRange.Usage == 0x31) {
+                ljson["YLogicalMax"] = theCaps.LogicalMax;
+            }
+            else {
+                continue;
             }
         }
         strcpy_s(rjson, length, ljson.dump().c_str());

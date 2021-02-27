@@ -25,13 +25,15 @@ namespace TouchpadGestures_Advanced
         public static string NMC_AppData;
         public static List<string> Registry_TGA_NMC_Values = new List<string>();
         public static int NMC_RunningMax = 31;
-        public static MyDispatcher DispatcherNow = new MyDispatcher("default");
+        public static MyDispatcher DispatcherNow;
+        public static SemaphoreSlim DispatcherSemaphore = new SemaphoreSlim(1, 1);
         public static MyNotifyIcon myNotifyIcon;
         public static int PrimaryWorkingAreaWidth = (int)SystemParameters.WorkArea.Width;
         public static int PrimaryWorkingAreaHeight = (int)SystemParameters.WorkArea.Height; 
         public static int ForBrowserMaxHeight = PrimaryWorkingAreaHeight - 200; 
         public static int ForBrowserMaxWidth = PrimaryWorkingAreaHeight - 200;
         public static int MaxRowsOfTabWithImage = ForBrowserMaxHeight / 165;
+        public static Settings Settings;
 
         private static void Registry_TGA_NMC_Values_Init()
         {
@@ -77,6 +79,7 @@ namespace TouchpadGestures_Advanced
 
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             TGA_AppData = appData + @"\TouchpadGestures_Advanced";
+            Directory.CreateDirectory(TGA_AppData + @"\AppSettings");
             NMC_AppData = TGA_AppData + @"\NMC";
 
             Registry_TGA = Registry.CurrentUser.CreateSubKey("SOFTWARE\\TouchpadGestures_Advanced", true);
@@ -100,6 +103,9 @@ namespace TouchpadGestures_Advanced
                     }
                 }
             }
+
+            App.Settings = new Settings();
+            DispatcherNow = new MyDispatcher("default");
 
             myNotifyIcon = new MyNotifyIcon();
 

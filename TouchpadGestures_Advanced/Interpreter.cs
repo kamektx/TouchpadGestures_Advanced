@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Drawing;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace TouchpadGestures_Advanced
 {
@@ -14,8 +15,15 @@ namespace TouchpadGestures_Advanced
     {
         idle, distinguish, ignore, active, dontHnadle
     }
+    public class InputDataForInit
+    {
+        public int XLogicalMax { get; set; }
+        public int YLogicalMax { get; set; }
+    }
     public class InputData
     {
+        public static int XLogicalMax = 1228;
+        public static int YLogicalMax = 928;
         public class CollectionData
         {
             public int ContactID { get; set; }
@@ -25,11 +33,11 @@ namespace TouchpadGestures_Advanced
             public bool IsFinger { get; set; }
             public double NX //Normalized X
             {
-                get { return X * 4096d / 1228d; } //todo: 1228 is LogicalMax of TouchPad's X. 
+                get { return X * 2784d / InputData.YLogicalMax; }  
             }
             public double NY //Normalized Y
             {
-                get { return Y * 4096d / 1228d; }
+                get { return Y * 2784d / InputData.YLogicalMax; }
             }
             public PointD Point
             {
@@ -127,11 +135,11 @@ namespace TouchpadGestures_Advanced
             }
         }
 
-        internal static bool GetNewSize(InputData inputData, InputData oldInputData)
+        internal static bool GetNewSize(ref PointD size, InputData inputData, InputData oldInputData)
         {
             if((inputData.ContactCount == 3 && inputData.IsOff == false) && (oldInputData.ContactCount == 3 && oldInputData.IsOff == false))
             {
-                _Size += (inputData.Mean - oldInputData.Mean) * (Condition == Conditions.ignore ? Settings.IgnoreMagnification : 1d);
+                size += (inputData.Mean - oldInputData.Mean) * (Condition == Conditions.ignore ? App.Settings.IgnoreMagnification : 1d);
             }
             else
             {
@@ -155,14 +163,19 @@ namespace TouchpadGestures_Advanced
                         oldLinkCollectionList.Add(oldContactID_LinkCollection[contactID_Index.Key]);
                     }
                 }
-                _Size += (inputData.Mean2(nowLinkCollectionList) - oldInputData.Mean2(oldLinkCollectionList)) * (Condition == Conditions.ignore ? Settings.IgnoreMagnification : 1d);
+                size += (inputData.Mean2(nowLinkCollectionList) - oldInputData.Mean2(oldLinkCollectionList)) * (Condition == Conditions.ignore ? App.Settings.IgnoreMagnification : 1d);
             }
             return true;
         }
-
+        internal static void InitJson(string argJson)
+        {
+            var initData = JsonConvert.DeserializeObject<InputDataForInit>(argJson);
+            InputData.XLogicalMax = initData.XLogicalMax;
+            InputData.YLogicalMax = initData.YLogicalMax;
+        }
         internal static void SetJson(string argJson)
         {
-            _InputData = JsonSerializer.Deserialize<InputData>(argJson);
+            _InputData = JsonConvert.DeserializeObject<InputData>(argJson);
             _InputData.RemoveNotFinger();
             Interpret();
         }
@@ -175,13 +188,14 @@ namespace TouchpadGestures_Advanced
                     _Size = new PointD(0, 0);
                     App.DispatcherNow.Inactivate();
                     Condition = Conditions.idle;
+                    App.DispatcherSemaphore.Release();
                 }
             }
             else
             {
                 if (Condition == Conditions.active || Condition == Conditions.ignore)
                 {
-                    GetNewSize(_InputData, _OldInputData);
+                    GetNewSize(ref _Size, _InputData, _OldInputData);
                     while (_Size.Height >= App.DispatcherNow.VerticalThreshold)
                     {
                         _Size.Height -= App.DispatcherNow.VerticalThreshold;
@@ -205,14 +219,14 @@ namespace TouchpadGestures_Advanced
                 }
                 else if (Condition == Conditions.distinguish)
                 {
-                    GetNewSize(_InputData, _OldInputData);
-                    if (_Size.Abs > Settings.ThresholdActive)
+                    GetNewSize(ref _Size, _InputData, _OldInputData);
+                    if (_Size.Abs > App.Settings.ThresholdActive)
                     {
                         foreach (Direction item in Enum.GetValues(typeof(Direction)))
                         {
                             if (_Size.IsDirection(item))
                             {
-                                if(App.DispatcherNow.Type[item] == DispatcherType.dontHandle)
+                                if(App.DispatcherNow.Data.ActionType[item] == ActionType.dontHandle)
                                 {
                                     Condition = Conditions.dontHnadle;
                                     break;
@@ -231,6 +245,7 @@ namespace TouchpadGestures_Advanced
                 }
                 else if (Condition == Conditions.idle)
                 {
+                    App.DispatcherSemaphore.Wait();
                     Condition = Conditions.distinguish;
                 }
             }
@@ -239,7 +254,7 @@ namespace TouchpadGestures_Advanced
         }
         private static async void IgnoreTimer()
         {
-            await Task.Delay(Settings.IgnoreTime);
+            await Task.Delay(App.Settings.IgnoreTime);
             if (Condition == Conditions.ignore)
             {
                 Condition = Conditions.active;

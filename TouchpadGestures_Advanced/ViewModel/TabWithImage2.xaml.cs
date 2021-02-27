@@ -9,7 +9,7 @@ namespace TouchpadGestures_Advanced
     /// <summary>
     /// TabWithImage.xaml の相互作用ロジック
     /// </summary>
-    public partial class TabWithImage2 : UserControl
+    public partial class TabWithImage2 : TabCommon
     {
         public SendingObject.MyWindow.MyTab MyTab;
         public NMC_Manager MyNMC;

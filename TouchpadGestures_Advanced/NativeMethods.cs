@@ -21,6 +21,9 @@ namespace TouchpadGestures_Advanced
         public static extern unsafe int HidManager(IntPtr wParam, IntPtr lParam, [MarshalAs(UnmanagedType.LPUTF8Str), Out] StringBuilder rjson, uint length);
 
         [DllImport("TGA_Win32.dll", CharSet = CharSet.Unicode)]
+        public static extern unsafe int HidInit(IntPtr wParam, IntPtr lParam, [MarshalAs(UnmanagedType.LPUTF8Str), Out] StringBuilder rjson, uint length);
+
+        [DllImport("TGA_Win32.dll", CharSet = CharSet.Unicode)]
         public static extern unsafe int RegisterRawInput(IntPtr hwnd);
         [DllImport("TGA_Win32.dll", CharSet = CharSet.Unicode)]
         public static extern unsafe void SendDirectKeyInput(char command, [In] IntPtr keys1, int keys1length, [In] IntPtr keys2, int keys2length);       

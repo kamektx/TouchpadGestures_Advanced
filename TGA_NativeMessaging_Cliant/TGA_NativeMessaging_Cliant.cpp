@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
                     favicon.resize("64x64");
                 }
                 favicon.write(app.MyAppData + "\\favicon\\png\\" + name + ".png");
-                //filesystem::remove(app.MyAppData + "\\favicon\\raw\\" + name + "." + format);
+                filesystem::remove(app.MyAppData + "\\favicon\\raw\\" + name + "." + format);
             }
             else if (jsonType == "SendingObject") {
                 ofstream file(app.MyAppData + "\\sending_object.json", ios::binary);

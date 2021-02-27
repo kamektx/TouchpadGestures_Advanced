@@ -14,9 +14,10 @@ namespace TouchpadGestures_Advanced
     {
         public class MyWindowsConverter : JsonConverter<Dictionary<int, MyWindow>>
         {
+            public override bool CanWrite => false;
             public override void WriteJson(JsonWriter writer, Dictionary<int, MyWindow> value, JsonSerializer serializer)
             {
-                writer.WriteValue(value.ToString());
+                throw new NotImplementedException();
             }
 
             public override Dictionary<int, MyWindow> ReadJson(JsonReader reader, Type objectType, Dictionary<int, MyWindow> existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -72,9 +73,10 @@ namespace TouchpadGestures_Advanced
         {
             public class MyTabsConverter : JsonConverter<Dictionary<int, MyTab>>
             {
+                public override bool CanWrite => false;
                 public override void WriteJson(JsonWriter writer, Dictionary<int, MyTab> value, JsonSerializer serializer)
                 {
-                    writer.WriteValue(value.ToString());
+                    throw new NotImplementedException();
                 }
 
                 public override Dictionary<int, MyTab> ReadJson(JsonReader reader, Type objectType, Dictionary<int, MyTab> existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -99,7 +101,7 @@ namespace TouchpadGestures_Advanced
             public Dictionary<int, MyTab> Tabs { get; set; }
             public class MyTab
             {
-                public bool? IsActive { get; set; }
+                public bool IsActive { get; set; }
                 public int WindowID { get; set; }
                 public int TabID { get; set; }
                 public string Status { get; set; }
