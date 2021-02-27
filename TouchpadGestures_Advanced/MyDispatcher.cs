@@ -77,6 +77,17 @@ namespace TouchpadGestures_Advanced
                 Debug.WriteLine("Dispatcher.Stroke() called before FirstStroke()");
             }
         }
+        public void WhatToDo(Direction direction)
+        {
+            if (IsActive)
+            {
+                Data.DirectionAction[FirstDirection].Stroke(direction);
+            }
+            else
+            {
+                Debug.WriteLine("Dispatcher.Stroke() called before FirstStroke()");
+            }
+        }
         public void Inactivate()
         {
             Data.DirectionAction[FirstDirection].Inactivate();
@@ -122,8 +133,7 @@ namespace TouchpadGestures_Advanced
             {
                 settingPath = App.TGA_AppData + @"\AppSettings\default.json";
             }
-            int count = 0;
-            do
+            for (int errorCount = 10; errorCount > 0; errorCount--)
             {
                 try
                 {
@@ -131,15 +141,15 @@ namespace TouchpadGestures_Advanced
                 }
                 catch (IOException)
                 {
-                    count++;
-                    if (count > 100)
+                    if (errorCount <= 1)
                     {
                         throw;
                     }
                     Thread.Sleep(5);
                     continue;
                 }
-            } while (false);
+                break;
+            }
             Data = JsonConvert.DeserializeObject<MyDispatcherData>(appSettingJSON, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto

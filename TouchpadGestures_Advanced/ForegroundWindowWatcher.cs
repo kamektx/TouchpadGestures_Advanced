@@ -43,6 +43,8 @@ namespace TouchpadGestures_Advanced
             GetModuleFileNameEx(hProc, IntPtr.Zero, applicationName, 260);
             CloseHandle(hProc);
             Debug.WriteLine(applicationName.ToString());
+
+            
         }
 
         private static IntPtr windowEventHook;

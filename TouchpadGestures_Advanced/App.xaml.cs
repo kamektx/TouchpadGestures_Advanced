@@ -34,6 +34,7 @@ namespace TouchpadGestures_Advanced
         public static int ForBrowserMaxWidth = PrimaryWorkingAreaHeight - 200;
         public static int MaxRowsOfTabWithImage = ForBrowserMaxHeight / 165;
         public static Settings Settings;
+        public static Status Status;
 
         private static void Registry_TGA_NMC_Values_Init()
         {
@@ -105,6 +106,7 @@ namespace TouchpadGestures_Advanced
             }
 
             App.Settings = new Settings();
+            App.Status = new Status();
             DispatcherNow = new MyDispatcher("default");
 
             myNotifyIcon = new MyNotifyIcon();
