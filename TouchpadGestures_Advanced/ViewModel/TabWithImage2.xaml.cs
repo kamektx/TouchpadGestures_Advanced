@@ -11,43 +11,19 @@ namespace TouchpadGestures_Advanced
     /// </summary>
     public partial class TabWithImage2 : TabCommon
     {
-        public SendingObject.MyWindow.MyTab MyTab;
-        public NMC_Manager MyNMC;
         public TabWithImage2Data MyData;
-        public StackPanel MySP;
         public BitmapImage MyImageSource;
         public BitmapImage MyFaviconSource;
-        public TabWithImage2(NMC_Manager myNMC, SendingObject.MyWindow.MyTab myTab, StackPanel sp)
+        public TabWithImage2(NMC_Manager myNMC, SendingObject.MyWindow.MyTab myTab, StackPanel sp, StackPanel wrapperSP, ForBrowser forBrowser, int rowIndex, int columnIndex, int tabIndex, int columnsIndex)
+        : base(myNMC, myTab, sp, wrapperSP, forBrowser, rowIndex, columnIndex, tabIndex, columnsIndex)
         {
-            this.MyNMC = myNMC;
-            this.MyTab = myTab;
-            this.MySP = sp;
             this.MyData = new TabWithImage2Data();
             this.DataContext = this.MyData;
             InitializeComponent();
             this.Width = sp.Width;
-            this.MyImageSource = new BitmapImage();
-            this.MyFaviconSource = new BitmapImage();
-            this.MyImageSource.BeginInit();
-            this.MyFaviconSource.BeginInit();
-            if (MyTab.ScreenShot != null && File.Exists(MyNMC.MyAppData + @"\screenshot\" + MyTab.ScreenShot))
-            {
-                this.MyImageSource.UriSource = new Uri(MyNMC.MyAppData + @"\screenshot\" + MyTab.ScreenShot);
-            }
-            else
-            {
-                this.MyImageSource.UriSource = new Uri("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\Image\\firefox.png");
-            }
-            if (MyTab.Favicon != null && File.Exists(MyNMC.MyAppData + @"\favicon\png\" + MyTab.Favicon + @".png"))
-            {
-                this.MyFaviconSource.UriSource = new Uri(MyNMC.MyAppData + @"\favicon\png\" + MyTab.Favicon + @".png");
-            }
-            else
-            {
-                this.MyFaviconSource.UriSource = new Uri("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\Icon\\firefox.png");
-            }
-            this.MyImageSource.EndInit();
-            this.MyFaviconSource.EndInit();
+            this.MyImageSource = BitmapImageExtension.MyInit(MyTab.ScreenShot != null ? new Uri(MyNMC.MyAppData + @"\screenshot\" + MyTab.ScreenShot) : null, DefaultImageSourceUri);
+            this.MyFaviconSource = BitmapImageExtension.MyInit(MyTab.Favicon != null ? new Uri(MyNMC.MyAppData + @"\favicon\png\" + MyTab.Favicon + @".png") : null, DefaultFaviconSourceUri);
+
             this.MyTitle.Text = myTab.Title ?? "";
             this.MyImage.Source = this.MyImageSource;
             this.MyFavicon.Source = this.MyFaviconSource;

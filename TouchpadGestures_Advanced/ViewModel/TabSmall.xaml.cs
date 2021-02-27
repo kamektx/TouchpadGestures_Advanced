@@ -25,19 +25,9 @@ namespace TouchpadGestures_Advanced
                 this.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#4a4d8eff"));
             }
             this.Width = sp.Width;
-            this.MyFaviconSource = new BitmapImage();
-            this.MyFaviconSource.BeginInit();
-            if (MyTab.Favicon != null && File.Exists(MyNMC.MyAppData + @"\favicon\png\" + MyTab.Favicon + @".png"))
-            {
-                this.MyFaviconSource.UriSource = new Uri(MyNMC.MyAppData + @"\favicon\png\" + MyTab.Favicon + @".png");
-            }
-            else
-            {
-                this.MyFaviconSource.UriSource = new Uri("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\Icon\\firefox.png");
-            }
-            this.MyFaviconSource.EndInit();
-            this.MyTitle.Text = myTab.Title ?? "";
+            this.MyFaviconSource = BitmapImageExtension.MyInit(MyTab.Favicon != null ? new Uri(MyNMC.MyAppData + @"\favicon\png\" + MyTab.Favicon + @".png") : null, DefaultFaviconSourceUri);
             this.MyFavicon.Source = this.MyFaviconSource;
+            this.MyTitle.Text = myTab.Title ?? "";
         }
     }
     public class TabSmallData

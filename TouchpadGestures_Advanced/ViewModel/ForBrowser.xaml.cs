@@ -98,36 +98,8 @@ namespace TouchpadGestures_Advanced
                                         rows = maxRows;
                                     }
                                 }
-                                var sampleImageSource = new BitmapImage();
-                                sampleImageSource.BeginInit();
-                                sampleImageSource.CacheOption = BitmapCacheOption.OnLoad;
-                                if (w.LastCapturedTab.HasValue && w.Tabs[w.LastCapturedTab.Value]?.ScreenShot != null && File.Exists(MyNMC.MyAppData + @"\screenshot\" + w.Tabs[w.LastCapturedTab.Value].ScreenShot))
-                                {
-                                    sampleImageSource.UriSource = new Uri(MyNMC.MyAppData + @"\screenshot\" + w.Tabs[w.LastCapturedTab.Value].ScreenShot);
-                                }
-                                else
-                                {
-                                    sampleImageSource.UriSource = new Uri("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\Image\\dummy_16x9.jpg");
-                                }
-                                bool isSampleImageSourceInited = false;
-                                for (int i = 1; i > 0; i--)
-                                {
-                                    try
-                                    {
-                                        sampleImageSource.EndInit();
-                                    }
-                                    catch (IOException)
-                                    {
-                                        continue;
-                                    }
-                                    isSampleImageSourceInited = true;
-                                    break;
-                                }
-                                if (!isSampleImageSourceInited)
-                                {
-                                    sampleImageSource.UriSource = new Uri("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\Image\\dummy_16x9.jpg");
-                                    sampleImageSource.EndInit();
-                                }
+                                var sampleImageSource = BitmapImageExtension.MyInit((w.LastCapturedTab.HasValue && w.Tabs[w.LastCapturedTab.Value]?.ScreenShot != null) ? new Uri(MyNMC.MyAppData + @"\screenshot\" + w.Tabs[w.LastCapturedTab.Value].ScreenShot) : null, TabCommon.StaticImageSourceUri);
+
                                 int sampleWidth = ItemBigMaxWidth;
                                 double sampleActualHeight = (sampleWidth - MyTabWithImage2Data.MyBorderThickness * 2 - MyTabWithImage2Data.MyBorderPadding * 2) * sampleImageSource.PixelHeight / sampleImageSource.PixelWidth + MyTabWithImage2Data.FaviconGridWidthAndHeight + MyTabWithImage2Data.MyBorderThickness * 2 + MyTabWithImage2Data.MyBorderPadding * 2;
 
