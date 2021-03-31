@@ -36,19 +36,17 @@ namespace TouchpadGestures_Advanced
         {
             get
             {
-                MySemaphore.Wait();
                 if (SendingObject == null)
                 {
                     return false;
                 }
                 bool temp = SendingObject.ActiveWindowID.HasValue;
-                MySemaphore.Release();
                 return temp;
             }
         }
-        public bool AssertRunning()
+        public async Task<bool> AssertRunning()
         {
-            MySemaphore.Wait();
+            await MySemaphore.WaitAsync();
             IsRunning = true;
             try
             {
@@ -104,8 +102,11 @@ namespace TouchpadGestures_Advanced
                     Thread.Sleep(5);
                     Debug.WriteLine("ForBrowserWindow == null");
                 }
+                if (IsActive)
+                {
+                    NativeMessaging.ActiveNMC = this;
+                }
                 ForBrowserWindow.Dispatcher.BeginInvoke(ForBrowserWindow.Refresh);
-
             }
             MySemaphore.Release();
         }
@@ -122,6 +123,7 @@ namespace TouchpadGestures_Advanced
                 }
             }
             ReadJSON();
+            ForBrowserWindow.Dispatcher.BeginInvoke(ForBrowserWindow.MakeHidden);
             Watcher.Path = MyAppData;
             Watcher.NotifyFilter = NotifyFilters.LastWrite;
             Watcher.Filter = "sending_object.json";
@@ -166,7 +168,7 @@ namespace TouchpadGestures_Advanced
                 {
                     WindowState = 1;
                     SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
-                    ForBrowserWindow = new ForBrowser(this);
+                    ForBrowserWindow = new ForBrowser(this, Direction.down); //todo
                     WindowState = 10;
                     ForBrowserWindow.Closed += (s, e) =>
            Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background);

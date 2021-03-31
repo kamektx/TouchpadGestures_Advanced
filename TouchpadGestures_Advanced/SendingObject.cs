@@ -45,6 +45,24 @@ namespace TouchpadGestures_Advanced
             public Arrangement Left { get; set; }
             public Arrangement Right { get; set; }
             public HandleDirection_ HandleDirection { get; set; }
+            public Arrangement this[Direction direction]
+            {
+                get {
+                    switch (direction)
+                    {
+                        case Direction.down:
+                            return Down;
+                        case Direction.up:
+                            return Up;
+                        case Direction.right:
+                            return Right;
+                        case Direction.left:
+                            return Left;
+                        default:
+                            throw new ArgumentException();
+                    }
+                }
+            }
             public class Arrangement
             {
                 public List<ColumnSetting> Column { get; set; }

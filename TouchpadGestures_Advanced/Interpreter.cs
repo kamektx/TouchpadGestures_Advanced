@@ -196,26 +196,7 @@ namespace TouchpadGestures_Advanced
                 if (Condition == Conditions.active || Condition == Conditions.ignore)
                 {
                     GetNewSize(ref _Size, _InputData, _OldInputData);
-                    while (_Size.Height >= App.DispatcherNow.VerticalThreshold)
-                    {
-                        _Size.Height -= App.DispatcherNow.VerticalThreshold;
-                        App.DispatcherNow.Stroke(Direction.down);
-                    }
-                    while (_Size.Height <= -App.DispatcherNow.VerticalThreshold)
-                    {
-                        _Size.Height += App.DispatcherNow.VerticalThreshold;
-                        App.DispatcherNow.Stroke(Direction.up);
-                    }
-                    while (_Size.Width >= App.DispatcherNow.HorizontalThreshold)
-                    {
-                        _Size.Width -= App.DispatcherNow.HorizontalThreshold;
-                        App.DispatcherNow.Stroke(Direction.right);
-                    }
-                    while (_Size.Width <= -App.DispatcherNow.HorizontalThreshold)
-                    {
-                        _Size.Width += App.DispatcherNow.HorizontalThreshold;
-                        App.DispatcherNow.Stroke(Direction.left);
-                    }
+                    App.DispatcherNow.InterpretSize(ref _Size);
                 }
                 else if (Condition == Conditions.distinguish)
                 {
@@ -226,7 +207,7 @@ namespace TouchpadGestures_Advanced
                         {
                             if (_Size.IsDirection(item))
                             {
-                                if(App.DispatcherNow.Data.ActionType[item] == ActionType.dontHandle)
+                                if(App.DispatcherNow.WhichActionType(item) == ActionType.dontHandle)
                                 {
                                     Condition = Conditions.dontHnadle;
                                     break;
@@ -234,9 +215,9 @@ namespace TouchpadGestures_Advanced
                                 else
                                 {
                                     _Size = new PointD(0, 0);
+                                    App.DispatcherNow.FirstStroke(item);
                                     Condition = Conditions.ignore;
                                     IgnoreTimer();
-                                    App.DispatcherNow.FirstStroke(item);
                                     break;
                                 }
                             }

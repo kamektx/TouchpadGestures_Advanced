@@ -12,10 +12,11 @@ using System.Windows.Threading;
 
 namespace TouchpadGestures_Advanced
 {
-    public class NativeMessaging
+    public static class NativeMessaging
     {
         public static object SyncObj = new object();
         public static string DeserializingNMC_Key = "";
+        public static NMC_Manager ActiveNMC = null;
 
         public static Dictionary<string, NMC_Manager> NMCs = new Dictionary<string, NMC_Manager>(); // Key, NMC_Manager
 
@@ -38,7 +39,7 @@ namespace TouchpadGestures_Advanced
                 }
             }
         }
-        internal static void DeleteNMC(NMC_Manager nmc)
+        internal static async void DeleteNMC(NMC_Manager nmc)
         {
             if (nmc.IsRunning == false)
             {
@@ -51,7 +52,7 @@ namespace TouchpadGestures_Advanced
                         while(nmc.WindowState != 10)
                         {
                             Debug.WriteLine("nmc.WindowState == 1");
-                            Thread.Sleep(5);
+                            await Task.Delay(5);
                         }
                         goto case 10;
                     case 10:
@@ -103,7 +104,7 @@ namespace TouchpadGestures_Advanced
             {
                 ScanNMC();
                 DeleteNMC_Directories();
-                await Task.Delay(10 * 1000);
+                await Task.Delay(60 * 1000);
             }
         }
     }

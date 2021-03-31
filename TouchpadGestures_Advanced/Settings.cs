@@ -1,21 +1,129 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Threading;
+using System.Windows;
 
 namespace TouchpadGestures_Advanced
 {
     public class Settings
-    {        
-        public int VerticalThresholdSmall = 75;
-        public int HorizontalThreshold = 150;
-        public int ThresholdActive = 170;
-        public int IgnoreTime = 180;
-        public double IgnoreMagnification = 0.1;
-        public double ThresholdAngle = 45d;
+    {
+        public void SaveSettings(string str = "default")
+        {
+            File.WriteAllText(App.TGA_AppData + @"\Settings\" + str + ".json", JsonConvert.SerializeObject(this));
+        }
+        public static Settings LoadSettings(string str = "default")
+        {
+            string appSettingJSON = null;
+            string settingPath = null;
+            if (str != "default" && File.Exists(App.TGA_AppData + @"\Settings\" + str + @".json"))
+            {
+                settingPath = App.TGA_AppData + @"\Settings\" + str + @".json";
+            }
+            else
+            {
+                settingPath = App.TGA_AppData + @"\Settings\default.json";
+            }
+            for (int errorCount = 10; errorCount > 0; errorCount--)
+            {
+                try
+                {
+                    appSettingJSON = File.ReadAllText(settingPath, Encoding.UTF8);
+                }
+                catch (IOException)
+                {
+                    if (errorCount <= 1)
+                    {
+                        throw;
+                    }
+                    Thread.Sleep(5);
+                    continue;
+                }
+                break;
+            }
+            return JsonConvert.DeserializeObject<Settings>(appSettingJSON);
+        }
+        private double _ThresholdMultiplier = 1.0;
+        public double ThresholdMultiplier
+        {
+            get { return _ThresholdMultiplier; }
+            set { _ThresholdMultiplier = value; }
+        }
+
+        private double _VerticalThresholdSmall = 75.0;
+        public double VerticalThresholdSmall
+        {
+            get
+            {
+                return _VerticalThresholdSmall * ThresholdMultiplier;
+            }
+            set
+            {
+                _VerticalThresholdSmall = value;
+            }
+        }
+        private double _VerticalMultiplierForBig = 1.2;
+        public double VerticalMultiplierForBig
+        {
+            get { return _VerticalMultiplierForBig; }
+            set { _VerticalMultiplierForBig = value; }
+        }
+        [JsonIgnore]
+        public double VerticalThresholdBig
+        {
+            get
+            {
+                return VerticalThresholdSmall * VerticalMultiplierForBig;
+            }
+        }
+
+        private double _HorizontalThreshold = 90.0;
+        public double HorizontalThreshold
+        {
+            get
+            {
+                return _HorizontalThreshold * ThresholdMultiplier;
+            }
+            set
+            {
+                _HorizontalThreshold = value;
+            }
+        }
+        private double _ThresholdActive = 170;
+        public double ThresholdActive
+        {
+            get { return _ThresholdActive; }
+            set { _ThresholdActive = value; }
+        }
+        private int _IgnoreTime = 160;
+        public int IgnoreTime
+        {
+            get { return _IgnoreTime; }
+            set { _IgnoreTime = value; }
+        }
+        private double _IgnoreMagnification = 0.1;
+        public double IgnoreMagnification
+        {
+            get { return _IgnoreMagnification; }
+            set { _IgnoreMagnification = value; }
+        }
+        private double _ThresholdAngle = 45d;
+        public double ThresholdAngle
+        {
+            get { return _ThresholdAngle; }
+            set { _ThresholdAngle = value; }
+        }
     }
 
-    public class Status
+    public static class Status
     {
-        public string ForegroundApplication { get; set; }
+        public static string ForegroundApplication { get; set; }
+        public static int PrimaryWorkingAreaWidth = (int)SystemParameters.WorkArea.Width;
+        public static int PrimaryWorkingAreaHeight = (int)SystemParameters.WorkArea.Height;
+        public static int ForBrowserMaxHeight = PrimaryWorkingAreaHeight - 200;
+        public static int ForBrowserMaxWidth = PrimaryWorkingAreaHeight - 200;
+        public static int MaxRowsOfTabWithImage = ForBrowserMaxHeight / 165;
     }
 }

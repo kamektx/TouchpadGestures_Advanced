@@ -18,7 +18,8 @@ namespace TouchpadGestures_Advanced
     {
         dontHandle,
         shortcut,
-        nativeMessaging
+        nativeMessaging,
+        error
     }
     public class MyDispatcherData
     {
@@ -27,11 +28,33 @@ namespace TouchpadGestures_Advanced
     }
     public class MyDispatcher
     {
-        public MyDispatcherData Data;
+        private MyDispatcherData Data;
+        private bool IsDefault;
 
-        public Direction FirstDirection;
+        public Direction FirstDirection = Direction.down;
         public bool IsActive = false;
-        public int VerticalThreshold
+        public bool InterpretSize(ref PointD size)
+        {
+            switch (WhichActionType())
+            {
+                case ActionType.dontHandle:
+                    Debug.WriteLine("DispatcherInterpretSize() is called when the ActionType is dontHandle.");
+                    break;
+                case ActionType.shortcut:
+                    Data.DirectionAction[FirstDirection].InterpretSize(ref size);
+                    break;
+                case ActionType.nativeMessaging:
+                    Data.DirectionAction[FirstDirection].InterpretSize(ref size);
+                    break;
+                case ActionType.error:
+                    Debug.WriteLine("DispatcherInterpretSize() is called before FirstStroke().");
+                    break;
+                default:
+                    break;
+            }
+            return true;
+        }
+        public double VerticalThreshold
         {
             get
             {
@@ -45,7 +68,7 @@ namespace TouchpadGestures_Advanced
                 }
             }
         }
-        public int HorizontalThreshold
+        public double HorizontalThreshold
         {
             get
             {
@@ -66,27 +89,21 @@ namespace TouchpadGestures_Advanced
             Data.DirectionAction[direction].FirstStroke(direction);
             return Data.ActionType[direction];
         }
-        public void Stroke(Direction direction)
+        public ActionType WhichActionType()
         {
             if (IsActive)
             {
-                Data.DirectionAction[FirstDirection].Stroke(direction);
+                return Data.ActionType[FirstDirection];
             }
             else
             {
-                Debug.WriteLine("Dispatcher.Stroke() called before FirstStroke()");
+                Debug.WriteLine("MyDispatcher.WhichActionType() is called before FirstStroke().");
+                return ActionType.error;
             }
         }
-        public void WhatToDo(Direction direction)
+        public ActionType WhichActionType(Direction direction)
         {
-            if (IsActive)
-            {
-                Data.DirectionAction[FirstDirection].Stroke(direction);
-            }
-            else
-            {
-                Debug.WriteLine("Dispatcher.Stroke() called before FirstStroke()");
-            }
+            return Data.ActionType[direction];
         }
         public void Inactivate()
         {
@@ -94,44 +111,55 @@ namespace TouchpadGestures_Advanced
             IsActive = false;
         }
 
-        public MyDispatcher(string str)
+        public static void MakeMyDispatcherSetting(string applicationName)
         {
-            //Data = new MyDispatcherData();
-            //Data.ActionType = new Dictionary<Direction, ActionType>();
-            //Data.DirectionAction = new Dictionary<Direction, MyAction>();
-            //Data.ActionType[Direction.down] = ActionType.shortcut;
-            //Data.ActionType[Direction.up] = ActionType.shortcut;
-            //Data.ActionType[Direction.left] = ActionType.dontHandle;
-            //Data.ActionType[Direction.right] = ActionType.dontHandle;
-            //Data.ActionType[Direction.up] = ActionType.shortcut;
-            //Data.DirectionAction[Direction.down] = new Shortcut(
-            //    new List<int> { (int)Tools.Key.LeftControl },
-            //    new Dictionary<Direction, List<int>> {
-            //            { Direction.down, new List<int> { (int)Tools.Key.Tab } },
-            //            { Direction.up, new List<int> { (int)Tools.Key.LeftShift, (int)Tools.Key.Tab } }
-            //    }
-            //);
-            //Data.DirectionAction[Direction.up] = new Shortcut(
-            //    new List<int> { (int)Tools.Key.LeftControl },
-            //    new Dictionary<Direction, List<int>> {
-            //            { Direction.down, new List<int> { (int)Tools.Key.Tab } },
-            //            { Direction.up, new List<int> { (int)Tools.Key.LeftShift, (int)Tools.Key.Tab } }
-            //    }
-            //);
-            //File.WriteAllText(App.TGA_AppData + @"\AppSettings\default.json", JsonConvert.SerializeObject(Data, new JsonSerializerSettings
-            //{
-            //    TypeNameHandling = TypeNameHandling.Auto
-            //}));
-
-            string appSettingJSON = null;
-            string settingPath = null;
-            if (File.Exists(App.TGA_AppData + @"\AppSettings\" + str + @".json"))
+            var data = new MyDispatcherData();
+            data.ActionType = new Dictionary<Direction, ActionType>();
+            data.DirectionAction = new Dictionary<Direction, MyAction>();
+            data.ActionType[Direction.down] = ActionType.nativeMessaging;
+            data.ActionType[Direction.up] = ActionType.dontHandle;
+            data.ActionType[Direction.left] = ActionType.dontHandle;
+            data.ActionType[Direction.right] = ActionType.dontHandle;
+            data.DirectionAction[Direction.down] = new NativeMessagingAction();
+            File.WriteAllText(App.TGA_AppData + @"\SettingsForActiveApp\" + applicationName + ".json", JsonConvert.SerializeObject(data, new JsonSerializerSettings
             {
-                settingPath = App.TGA_AppData + @"\AppSettings\" + str + @".json";
+                TypeNameHandling = TypeNameHandling.Auto
+            }));
+        }
+
+        public bool ShouldMakeNewMyDispatcher(string applicationName)
+        {
+            if (Status.ForegroundApplication == applicationName)
+            {
+                return false;
+            }
+            else if (File.Exists(App.TGA_AppData + @"\SettingsForActiveApp\" + applicationName + @".json"))
+            {
+                return true;
+            }
+            else if (IsDefault)
+            {
+                return false;
             }
             else
             {
-                settingPath = App.TGA_AppData + @"\AppSettings\default.json";
+                return true;
+            }
+        }
+
+        public MyDispatcher(string str)
+        {
+            string appSettingJSON = null;
+            string settingPath = null;
+            if (str != "default" && File.Exists(App.TGA_AppData + @"\SettingsForActiveApp\" + str + @".json"))
+            {
+                settingPath = App.TGA_AppData + @"\SettingsForActiveApp\" + str + @".json";
+                IsDefault = false;
+            }
+            else
+            {
+                settingPath = App.TGA_AppData + @"\SettingsForActiveApp\default.json";
+                IsDefault = true;
             }
             for (int errorCount = 10; errorCount > 0; errorCount--)
             {

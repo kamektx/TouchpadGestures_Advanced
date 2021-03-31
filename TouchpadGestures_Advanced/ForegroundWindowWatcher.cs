@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
+using System.Threading.Tasks;
+
+#pragma warning disable 4014
 
 namespace TouchpadGestures_Advanced
 {
@@ -35,16 +39,29 @@ namespace TouchpadGestures_Advanced
 
         private static void WindowEventCallback(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
-            var applicationName = new StringBuilder(260);
+            var applicationPath = new StringBuilder(260);
             uint dwProcId;
 
             GetWindowThreadProcessId(hwnd, out dwProcId);
             IntPtr hProc = OpenProcess(ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VirtualMemoryRead, false, dwProcId);
-            GetModuleFileNameEx(hProc, IntPtr.Zero, applicationName, 260);
+            GetModuleFileNameEx(hProc, IntPtr.Zero, applicationPath, 260);
             CloseHandle(hProc);
-            Debug.WriteLine(applicationName.ToString());
 
-            
+            ReadMyDispatcherSettings(applicationPath.ToString());
+        }
+
+        private static async Task ReadMyDispatcherSettings(string applicationPath)
+        {
+            string applicationName = Path.GetFileName(applicationPath);
+            if (App.DispatcherNow.ShouldMakeNewMyDispatcher(applicationName))
+            {
+                Debug.WriteLine($"Awaiting DispatcherSemaphore: {applicationName}");
+                await App.DispatcherSemaphore.WaitAsync();
+                Debug.WriteLine($"DispatcherNow is changed: {applicationName}");
+                App.DispatcherNow = new MyDispatcher(applicationName);
+                App.DispatcherSemaphore.Release();
+            }
+            Status.ForegroundApplication = applicationName;
         }
 
         private static IntPtr windowEventHook;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -10,6 +11,10 @@ using System.Windows.Media.Imaging;
 
 namespace TouchpadGestures_Advanced
 {
+    public enum TabSize
+    {
+        big, small
+    }
     /// <summary>
     /// ForBrowser.xaml の相互作用ロジック
     /// </summary>
@@ -23,28 +28,33 @@ namespace TouchpadGestures_Advanced
         public List<StackPanel> SPs;
         public List<Dictionary<int, TabCommon>> ColumnsIndexVsTabIndexVsTabCommon;
         public List<Dictionary<int, TabCommon>> ColumnIndexVsRowIndexVsTabCommon;
-        public TabWithImage2Data MyTabWithImage2Data;
-        public TabSmallData MyTabSmallData;
-        public ForBrowserData MyData;
-        public List<double> WidthOfSPs;
-        public List<List<double>> HeightOfTabs;
+        public TabWithImage2Data MyTabWithImage2Data { get; set; }
+        public TabSmallData MyTabSmallData { get; set; }
+        public ForBrowserData MyData { get; set; }
+        public Direction MyDirection;
+        public List<double> ColumnIndexVsHorizontalBoundary;
+        public List<List<double>> ColumnIndexVsRowIndexVsVerticalBoundary;
         public List<int> ColumnsIndexVsActiveTabIndex;
+        public List<TabSize> ColumnIndexVsTabSize;
+
         public void Refresh()
         {
             MyNMC.MySemaphore.Wait();
+            MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(0, 0);
             var s = MyNMC.SendingObject;
             WrapperSP.Children.Clear();
-            if (s.ActiveWindowID.HasValue)
+            if (MyNMC.IsActive)
             {
                 Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#c5000000"));
                 SPs.Clear();
                 ColumnsIndexVsTabIndexVsTabCommon.Clear();
                 ColumnIndexVsRowIndexVsTabCommon.Clear();
-                WidthOfSPs.Clear();
-                HeightOfTabs.Clear();
                 ColumnsIndexVsActiveTabIndex.Clear();
+                ColumnIndexVsTabSize.Clear();
                 var w = s.Windows[s.ActiveWindowID.Value];
-                foreach (var columnSetting in s.Arrangements.Down.Column)
+                var arr = s.Arrangements[MyDirection];
+                int columnIndexTemp = 0;
+                foreach (var columnSetting in arr.Column)
                 {
                     List<int> target;
                     switch (columnSetting.Type)
@@ -69,7 +79,7 @@ namespace TouchpadGestures_Advanced
                         case "big":
                             {
                                 int maxColumns = columnSetting.MaxColumns < 0 ? MaxColumns : columnSetting.MaxColumns;
-                                int maxRows = App.MaxRowsOfTabWithImage;
+                                int maxRows = Status.MaxRowsOfTabWithImage;
                                 int columns = 0;
                                 int rows = 0;
                                 for (int i = 1; i <= maxRows; i++)
@@ -103,7 +113,7 @@ namespace TouchpadGestures_Advanced
                                 int sampleWidth = ItemBigMaxWidth;
                                 double sampleActualHeight = (sampleWidth - MyTabWithImage2Data.MyBorderThickness * 2 - MyTabWithImage2Data.MyBorderPadding * 2) * sampleImageSource.PixelHeight / sampleImageSource.PixelWidth + MyTabWithImage2Data.FaviconGridWidthAndHeight + MyTabWithImage2Data.MyBorderThickness * 2 + MyTabWithImage2Data.MyBorderPadding * 2;
 
-                                int itemMaxHeight = App.ForBrowserMaxHeight / rows;
+                                int itemMaxHeight = Status.ForBrowserMaxHeight / rows;
                                 int calculatedWidth = ItemBigMaxWidth;
                                 if (sampleActualHeight > itemMaxHeight)
                                 {
@@ -116,6 +126,7 @@ namespace TouchpadGestures_Advanced
                                 for (int i = 0; i < columns; i++)
                                 {
                                     ColumnIndexVsRowIndexVsTabCommon.Add(new Dictionary<int, TabCommon>());
+                                    ColumnIndexVsTabSize.Add(TabSize.big);
                                     int spIndex = SPs.Count;
                                     var mySP = new StackPanel();
                                     mySP.Width = calculatedWidth;
@@ -128,7 +139,13 @@ namespace TouchpadGestures_Advanced
                                     {
                                         if (tabCount < target.Count)
                                         {
-                                            var item = new TabWithImage2(this.MyNMC, w.Tabs[target[tabCount]], mySP, WrapperSP, this, j, i, tabCount, ColumnsIndexVsActiveTabIndex.Count - 1);
+                                            var columnsIndex = ColumnsIndexVsActiveTabIndex.Count - 1;
+                                            var columnIndex = columnIndexTemp + i;
+                                            var item = new TabWithImage2(this.MyNMC, w.Tabs[target[tabCount]], mySP, WrapperSP, this, j, columnIndex, tabCount, columnsIndex);
+                                            if (arr.StartPosition.Column == columnsIndex && arr.StartPosition.Index == tabCount)
+                                            {
+                                                MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(columnIndex, j);
+                                            }
                                             item.MaxHeight = itemMaxHeight;
                                             mySP.Children.Add(item);
                                             tabCount++;
@@ -140,13 +157,14 @@ namespace TouchpadGestures_Advanced
                                     }
                                     WrapperSP.Children.Add(mySP);
                                 }
+                                columnIndexTemp += columns;
                                 break;
                             }
                         case "small":
                             {
                                 int maxColumns = columnSetting.MaxColumns < 0 ? MaxColumns : columnSetting.MaxColumns;
                                 double sampleActualHeight = MyTabSmallData.FaviconGridHeight * 2 + MyTabSmallData.MyBorderThickness * 2 + MyTabSmallData.MyBorderPadding * 2;
-                                int rows = (int)Math.Floor(App.ForBrowserMaxHeight / sampleActualHeight);
+                                int rows = (int)Math.Floor(Status.ForBrowserMaxHeight / sampleActualHeight);
                                 int columns = (int)Math.Ceiling((double)target.Count / rows);
                                 if (columns > maxColumns)
                                 {
@@ -157,6 +175,7 @@ namespace TouchpadGestures_Advanced
                                 for (int i = 0; i < columns; i++)
                                 {
                                     ColumnIndexVsRowIndexVsTabCommon.Add(new Dictionary<int, TabCommon>());
+                                    ColumnIndexVsTabSize.Add(TabSize.small);
                                     int spIndex = SPs.Count;
                                     var mySP = new StackPanel();
                                     mySP.Width = calculatedWidth;
@@ -169,7 +188,13 @@ namespace TouchpadGestures_Advanced
                                     {
                                         if (tabCount < target.Count)
                                         {
-                                            var item = new TabSmall(this.MyNMC, w.Tabs[target[tabCount]], mySP, WrapperSP, this, j, i, tabCount, ColumnsIndexVsActiveTabIndex.Count - 1);
+                                            var columnsIndex = ColumnsIndexVsActiveTabIndex.Count - 1;
+                                            var columnIndex = columnIndexTemp + i;
+                                            var item = new TabSmall(this.MyNMC, w.Tabs[target[tabCount]], mySP, WrapperSP, this, j, columnIndex, tabCount, columnsIndex);
+                                            if (arr.StartPosition.Column == columnsIndex && arr.StartPosition.Index == tabCount)
+                                            {
+                                                MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(columnIndex, j);
+                                            }
                                             mySP.Children.Add(item);
                                             tabCount++;
                                         }
@@ -180,49 +205,11 @@ namespace TouchpadGestures_Advanced
                                     }
                                     WrapperSP.Children.Add(mySP);
                                 }
+                                columnIndexTemp += columns;
                                 break;
                             }
                     }
                 }
-                this.Dispatcher.Invoke(() =>
-                {
-                    {
-                        int i = 0;
-                        foreach (var item in SPs)
-                        {
-                            if (i == 0)
-                            {
-                                WidthOfSPs.Add(item.ActualWidth);
-                            }
-                            else
-                            {
-                                WidthOfSPs.Add(WidthOfSPs[i - 1] + item.ActualWidth);
-                            }
-                            i++;
-                        }
-                    }
-                    {
-                        int i = 0;
-                        foreach (var rowIndexVsTabCommon in ColumnIndexVsRowIndexVsTabCommon)
-                        {
-                            int j = 0;
-                            foreach (var tabCommon in rowIndexVsTabCommon.Values)
-                            {
-                                HeightOfTabs.Add(new List<double>());
-                                if (j == 0)
-                                {
-                                    HeightOfTabs[i].Add(tabCommon.ActualHeight);
-                                }
-                                else
-                                {
-                                    HeightOfTabs[i].Add(HeightOfTabs[i][j - 1] + tabCommon.ActualHeight);
-                                }
-                                j++;
-                            }
-                            i++;
-                        }
-                    }
-                });
             }
             else
             {
@@ -230,36 +217,80 @@ namespace TouchpadGestures_Advanced
             }
             MyNMC.MySemaphore.Release();
         }
-        public ForBrowser(NMC_Manager nMC_Magager) : base()
+
+        public void MakeVisible()
         {
             Visibility = Visibility.Visible;
+            ColumnIndexVsHorizontalBoundary.Clear();
+            ColumnIndexVsRowIndexVsVerticalBoundary.Clear();
+            this.Dispatcher.Invoke(() =>
+            {
+                {
+                    ColumnIndexVsHorizontalBoundary.Add(0);
+                    int i = 0;
+                    foreach (var item in SPs)
+                    {
+                        ColumnIndexVsHorizontalBoundary.Add(ColumnIndexVsHorizontalBoundary[i] + item.ActualWidth);
+                        i++;
+                    }
+                }
+                {
+                    int i = 0;
+                    foreach (var rowIndexVsTabCommon in ColumnIndexVsRowIndexVsTabCommon)
+                    {
+                        ColumnIndexVsRowIndexVsVerticalBoundary.Add(new List<double> { 0 });
+                        int j = 0;
+                        foreach (var tabCommon in rowIndexVsTabCommon.Values)
+                        {
+                            ColumnIndexVsRowIndexVsVerticalBoundary[i].Add(ColumnIndexVsRowIndexVsVerticalBoundary[i][j] + tabCommon.ActualHeight);
+                            j++;
+                        }
+                        i++;
+                    }
+                }
+            });
+        }
+
+        public void MakeHidden()
+        {
+            Visibility = Visibility.Hidden;
+        }
+
+        public ForBrowser(NMC_Manager nMC_Magager, Direction direction) : base()
+        {
+            Visibility = Visibility.Hidden;
+            MyDirection = direction;
             SPs = new List<StackPanel>();
-            WidthOfSPs = new List<double>();
-            HeightOfTabs = new List<List<double>>();
+            ColumnIndexVsHorizontalBoundary = new List<double>();
+            ColumnIndexVsRowIndexVsVerticalBoundary = new List<List<double>>();
             ColumnsIndexVsTabIndexVsTabCommon = new List<Dictionary<int, TabCommon>>();
             ColumnIndexVsRowIndexVsTabCommon = new List<Dictionary<int, TabCommon>>();
             ColumnsIndexVsActiveTabIndex = new List<int>();
+            ColumnIndexVsTabSize = new List<TabSize>();
             MyNMC = nMC_Magager;
             MyTabWithImage2Data = new TabWithImage2Data();
             MyTabSmallData = new TabSmallData();
+            MyData = new ForBrowserData();
+            MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(1, 0);
             InitializeComponent();
         }
     }
     public class ForBrowserData : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        private void RaisePropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        private static readonly PropertyChangedEventArgs NamePropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(Name));
+        private KeyValuePair<int, int> _ColumnIndexAndRowIndexOfSelectedTab;
 
-        private string name;
-        public string Name
+        public KeyValuePair<int, int> ColumnIndexAndRowIndexOfSelectedTab
         {
-            get { return this.name; }
+            get => _ColumnIndexAndRowIndexOfSelectedTab;
             set
             {
-                if (this.name == value) { return; }
-                this.name = value;
-                this.PropertyChanged?.Invoke(this, NamePropertyChangedEventArgs);
+                if (_ColumnIndexAndRowIndexOfSelectedTab.Equals(value)) return;
+                _ColumnIndexAndRowIndexOfSelectedTab = value;
+                RaisePropertyChanged();
             }
         }
     }

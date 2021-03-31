@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TouchpadGestures_Advanced"
+             xmlns:converter="clr-namespace:TouchpadGestures_Advanced.Converters"
              mc:Ignorable="d" 
              d:Width="300"
              d:DataContext="{d:DesignInstance {x:Type local:TabSmallData}, 
@@ -11,9 +12,19 @@
              d:Background="#c5000000"
              x:Name="UserControl">
     <local:TabCommon.Resources>
+        <converter:BorderBrushConverter x:Key="BorderBrushConverter" />
         <Style TargetType="Border" x:Key="MyBorder">
             <Setter Property="Padding" Value="{Binding Path=MyBorderPadding}" />
             <Setter Property="BorderThickness" Value="{Binding Path=MyBorderThickness}"/>
+            <Setter Property="BorderBrush">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource BorderBrushConverter}" Mode="OneWay" UpdateSourceTrigger="PropertyChanged">
+                        <Binding Path="MyData.ColumnIndexAndRowIndexOfSelectedTab" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:ForBrowser}"/>
+                        <Binding Path="ColumnIndex" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:TabCommon}"/>
+                        <Binding Path="RowIndex" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:TabCommon}"/>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
         </Style>
     </local:TabCommon.Resources>
 
@@ -27,7 +38,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Border Grid.Row="1" Style="{StaticResource MyBorder}" BorderBrush="White" VerticalAlignment="Stretch" MaxHeight="{Binding ElementName=UserControl, Path=MaxHeight}">
+            <Border Grid.Row="1" Style="{StaticResource MyBorder}" VerticalAlignment="Stretch" MaxHeight="{Binding ElementName=UserControl, Path=MaxHeight}">
                 <Grid VerticalAlignment="Stretch" Margin="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="{Binding Path=FaviconGridWidth}"/>

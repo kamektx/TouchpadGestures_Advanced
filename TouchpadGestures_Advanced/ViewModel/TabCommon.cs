@@ -13,8 +13,8 @@ namespace TouchpadGestures_Advanced
         public StackPanel MySP;
         public StackPanel MyWrapperSP;
         public ForBrowser ForBrowserWindow;
-        public int RowIndex;
-        public int ColumnIndex;
+        public int RowIndex { get; set; }
+        public int ColumnIndex { get; set; }
         public int MyTabIndex;
         public int ColumnsIndex;
         protected Uri DefaultImageSourceUri = new Uri("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\Image\\firefox.png");

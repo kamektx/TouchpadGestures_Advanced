@@ -48,6 +48,8 @@ int main(int argc, char* argv[])
             file.close();
         }
 
+        SetEvent(events.NMC_Created);
+
         string str;
         stringstream ss;
         int count = 0;

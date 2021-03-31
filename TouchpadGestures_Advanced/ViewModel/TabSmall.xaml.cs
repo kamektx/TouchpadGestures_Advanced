@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -30,21 +31,15 @@ namespace TouchpadGestures_Advanced
             this.MyTitle.Text = myTab.Title ?? "";
         }
     }
-    public class TabSmallData
+    public class TabSmallData : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void RaisePropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         public int MyBorderThickness { get; set; } = 2;
         public int MyBorderPadding { get; set; } = 5;
         public int FaviconGridWidth { get; set; } = 28;
         public int FaviconGridHeight { get; set; } = 24;
         public int FaviconWidthAndHeight { get; set; } = 24;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged(String info)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
-        }
     }
 }
