@@ -164,6 +164,7 @@
     <ClCompile Include="MyProcess.cpp" />
     <ClCompile Include="MyRegistry.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="ReceiverFromTGA.cpp" />
     <ClCompile Include="string_wstring.cpp" />
     <ClCompile Include="TGA_NativeMessaging_Cliant.cpp" />
   </ItemGroup>
@@ -172,11 +173,13 @@
     <ClInclude Include="Base32.h" />
     <ClInclude Include="Base64.h" />
     <ClInclude Include="Events.h" />
+    <ClInclude Include="FileWatch.hpp" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="MyFunc.h" />
     <ClInclude Include="MyProcess.h" />
     <ClInclude Include="MyRegistry.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ReceiverFromTGA.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

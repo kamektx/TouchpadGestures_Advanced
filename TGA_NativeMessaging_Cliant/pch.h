@@ -33,6 +33,7 @@
 #include <filesystem>
 
 #include "json.hpp"
+#include "FileWatch.hpp"
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v) {
