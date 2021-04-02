@@ -122,8 +122,10 @@ namespace TouchpadGestures_Advanced
         public static string ForegroundApplication { get; set; }
         public static int PrimaryWorkingAreaWidth = (int)SystemParameters.WorkArea.Width;
         public static int PrimaryWorkingAreaHeight = (int)SystemParameters.WorkArea.Height;
-        public static int ForBrowserMaxHeight = PrimaryWorkingAreaHeight - 200;
-        public static int ForBrowserMaxWidth = PrimaryWorkingAreaHeight - 200;
+        public static int ForBrowserMaxHeight = PrimaryWorkingAreaHeight - 140;
+        public static int ForBrowserMaxWidth = PrimaryWorkingAreaWidth - 180;
         public static int MaxRowsOfTabWithImage = ForBrowserMaxHeight / 165;
+        public static int MinimumVerticalPadding = 30;
+        public static int MinimumHorizontalPadding = 40;
     }
 }

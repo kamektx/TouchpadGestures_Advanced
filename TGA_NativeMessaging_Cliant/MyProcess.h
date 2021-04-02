@@ -8,6 +8,6 @@ public:
     std::wstring AppPath;
     std::wstring CommandLine;
     WCHAR* CommandLineWCHAR;
-    MyProcess(std::string appPath, std::string commandLine = "");
+    MyProcess(std::string appPath, std::string commandLine = "", bool breakAwayFromJob = true);
     ~MyProcess();
 };

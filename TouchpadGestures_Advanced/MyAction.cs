@@ -104,6 +104,7 @@ namespace TouchpadGestures_Advanced
         private Direction FirstDirection;
         private bool IsActive = false;
         private NMC_Manager MyNMC = null;
+        private KeyValuePair<int, int> defaultColumnIndexAndRowIndexOfSelectedTab;
         [JsonIgnore]
         public override double VerticalThreshold
         {
@@ -133,11 +134,13 @@ namespace TouchpadGestures_Advanced
         public override void FirstStroke(Direction direction)
         {
             FirstDirection = direction;
+            NativeMessaging.ActiveNMC?.AssertRunning();
             MyNMC = NativeMessaging.ActiveNMC;
             if (MyNMC != null && MyNMC.IsActive)
             {
                 IsActive = true;
                 MyNMC.MySemaphore.Wait();
+                defaultColumnIndexAndRowIndexOfSelectedTab = MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab;
                 MyNMC.ForBrowserWindow.Dispatcher.BeginInvoke(MyNMC.ForBrowserWindow.MakeVisible);
             }
             else
@@ -149,8 +152,10 @@ namespace TouchpadGestures_Advanced
         {
             if (IsActive)
             {
+                MyNMC.SendCommand();
+                MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab = defaultColumnIndexAndRowIndexOfSelectedTab;
                 MyNMC.MySemaphore.Release();
-                MyNMC.ForBrowserWindow?.Dispatcher.BeginInvoke(MyNMC.ForBrowserWindow.MakeHidden);
+                MyNMC.ForBrowserWindow.Dispatcher.BeginInvoke(MyNMC.ForBrowserWindow.MakeHidden);
             }
             IsActive = false;
         }

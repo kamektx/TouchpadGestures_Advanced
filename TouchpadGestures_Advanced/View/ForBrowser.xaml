@@ -24,7 +24,7 @@
         </Style>
     </local:OverlayWindow.Resources>
     <Grid>
-        <Grid Margin="20">
+        <Grid Margin="{Binding Path=WindowPadding}">
             <StackPanel Orientation="Horizontal" x:Name="WrapperSP">
             </StackPanel>
         </Grid>

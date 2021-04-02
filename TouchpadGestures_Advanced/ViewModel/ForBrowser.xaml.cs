@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace TouchpadGestures_Advanced
 {
@@ -23,7 +24,8 @@ namespace TouchpadGestures_Advanced
         public static readonly int MaxColumns = 20;
         public static readonly int ItemBigMinWidth = 220;
         public static readonly int ItemBigMaxWidth = 320;
-        public static readonly int ItemSmallDefaultWidth = 300;
+        public static readonly int ItemSmallDefaultWidth = 290;
+        //MaxRowsOfTabWithImage(Max size of TabWithImage2) is determined in "Status" class.
         public NMC_Manager MyNMC;
         public List<StackPanel> SPs;
         public List<Dictionary<int, TabCommon>> ColumnsIndexVsTabIndexVsTabCommon;
@@ -36,6 +38,7 @@ namespace TouchpadGestures_Advanced
         public List<List<double>> ColumnIndexVsRowIndexVsVerticalBoundary;
         public List<int> ColumnsIndexVsActiveTabIndex;
         public List<TabSize> ColumnIndexVsTabSize;
+        public bool isOverFlow = false;
 
         public void Refresh()
         {
@@ -163,7 +166,7 @@ namespace TouchpadGestures_Advanced
                         case "small":
                             {
                                 int maxColumns = columnSetting.MaxColumns < 0 ? MaxColumns : columnSetting.MaxColumns;
-                                double sampleActualHeight = MyTabSmallData.FaviconGridHeight * 2 + MyTabSmallData.MyBorderThickness * 2 + MyTabSmallData.MyBorderPadding * 2;
+                                double sampleActualHeight = MyTabSmallData.FaviconGridHeight + MyTabSmallData.MyBorderThickness * 2 + MyTabSmallData.MyBorderPadding * 2;
                                 int rows = (int)Math.Floor(Status.ForBrowserMaxHeight / sampleActualHeight);
                                 int columns = (int)Math.Ceiling((double)target.Count / rows);
                                 if (columns > maxColumns)
@@ -248,12 +251,37 @@ namespace TouchpadGestures_Advanced
                         i++;
                     }
                 }
+                {
+                    this.Top = (Status.PrimaryWorkingAreaHeight - this.ActualHeight) / 2.0;
+                    double leftTemp;
+                    if (this.ActualWidth < Status.ForBrowserMaxWidth)
+                    {
+                        leftTemp = (Status.PrimaryWorkingAreaWidth - this.ActualWidth) / 2.0;
+                        isOverFlow = false;
+                    }
+                    else
+                    {
+                        leftTemp = Status.MinimumHorizontalPadding;
+                        isOverFlow = true;
+                    }
+                    this.Left = leftTemp;
+                }
             });
         }
 
         public void MakeHidden()
         {
             Visibility = Visibility.Hidden;
+        }
+        public void OverFlowHandling(int columnIndex)
+        {
+            if (ColumnIndexVsHorizontalBoundary[columnIndex + 1] > Status.ForBrowserMaxWidth)
+            {
+                if (columnIndex == ColumnIndexVsRowIndexVsTabCommon.Count - 1)
+                {
+
+                }
+            }
         }
 
         public ForBrowser(NMC_Manager nMC_Magager, Direction direction) : base()
@@ -270,8 +298,9 @@ namespace TouchpadGestures_Advanced
             MyNMC = nMC_Magager;
             MyTabWithImage2Data = new TabWithImage2Data();
             MyTabSmallData = new TabSmallData();
-            MyData = new ForBrowserData();
+            MyData = new ForBrowserData(this);
             MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(1, 0);
+            DataContext = MyData;
             InitializeComponent();
         }
     }
@@ -280,6 +309,9 @@ namespace TouchpadGestures_Advanced
         public event PropertyChangedEventHandler PropertyChanged;
         private void RaisePropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        public int WindowPadding { get; set; } = 20;
+        private ForBrowser MyForBrowser;
 
         private KeyValuePair<int, int> _ColumnIndexAndRowIndexOfSelectedTab;
 
@@ -290,8 +322,20 @@ namespace TouchpadGestures_Advanced
             {
                 if (_ColumnIndexAndRowIndexOfSelectedTab.Equals(value)) return;
                 _ColumnIndexAndRowIndexOfSelectedTab = value;
+
+                if (MyForBrowser.isOverFlow)
+                {
+                    Action<int> overFlowHandling = MyForBrowser.OverFlowHandling;
+                    MyForBrowser.Dispatcher.BeginInvoke(overFlowHandling, _ColumnIndexAndRowIndexOfSelectedTab.Key);
+                }
+
                 RaisePropertyChanged();
             }
+        }
+
+        public ForBrowserData(ForBrowser forBrowser)
+        {
+            MyForBrowser = forBrowser;
         }
     }
 }

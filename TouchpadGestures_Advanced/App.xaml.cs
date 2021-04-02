@@ -38,10 +38,6 @@ namespace TouchpadGestures_Advanced
                 Registry_TGA_NMC_Values.Add("NMC" + i + "_PID");
             }
             Registry_TGA_NMC_Values.Add("NMC_Running");
-            Registry_TGA_NMC_Values.Add("Return_Key");
-            Registry_TGA_NMC_Values.Add("Return_Command");
-            Registry_TGA_NMC_Values.Add("Return_Value1");
-            Registry_TGA_NMC_Values.Add("Return_Value2");
             Registry_TGA_NMC_Values.Add("NMC_RunningMax");
             Registry_TGA_NMC_Values.Add("NMC_ChangedKey");
         }
@@ -65,7 +61,6 @@ namespace TouchpadGestures_Advanced
             {
 
             }
-            //File.WriteAllText(@"C:\Users\TakumiK\source\repos\TouchpadGestures_Advanced\TouchpadGestures_Advanced\unkomitaina.txt", "mutex error.");
             if (!MutexHasHandle)
             {
                 this.Shutdown(0);

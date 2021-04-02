@@ -44,9 +44,38 @@ int main(int argc, char* argv[])
         }
         {
             ofstream file(app.MyAppData + "\\sending_object.json");
-            file << "未" << endl;
+            file << "@" << endl;
             file.close();
         }
+
+        string fileName = app.MyAppData + "\\for_receiving.json";
+        {
+            ofstream fileForReceiving(fileName);
+            fileForReceiving << endl;
+            fileForReceiving.close();
+        }
+        chrono::system_clock::time_point  lastTime = chrono::system_clock::now();
+        auto receiveCommandsAndSendCommands = [&]() {
+            if (chrono::duration_cast<std::chrono::milliseconds>(chrono::system_clock::now() - lastTime).count() < 60) return;
+            this_thread::sleep_for(chrono::milliseconds(5));
+            ifstream file(fileName);
+            if (!file) throw exception("The File for receiving commands from TGA is broken.");
+            mySend(string(std::istreambuf_iterator<char>(file),
+                std::istreambuf_iterator<char>()));
+            lastTime = chrono::system_clock::now();
+        };
+
+        filewatch::FileWatch<wstring> handleForReceiving(utf8_decode(fileName),
+            [&](const wstring& path, const filewatch::Event change_type) {
+                switch (change_type)
+                {
+                case filewatch::Event::modified:
+                    receiveCommandsAndSendCommands();
+                    break;
+                default:
+                    break;
+                };
+            });
 
         SetEvent(events.NMC_Created);
 
@@ -56,7 +85,7 @@ int main(int argc, char* argv[])
         int countTemp = 0;
         auto thread2 = thread([&] {
             while (true) {
-                int maxloop = 100;
+                int maxloop = 3000;
                 this_thread::sleep_for(chrono::milliseconds(5000));
                 if (countTemp > maxloop) {
                     cerr << "Infinite loop." << endl;
@@ -93,6 +122,7 @@ int main(int argc, char* argv[])
             if (buff2 == NULL) {
                 return 0;
             }
+            this_thread::sleep_for(chrono::milliseconds(5));
             fread(buff2, sizeof(char), length, stdin);
             buff2[length] = '\0';
 
@@ -157,6 +187,7 @@ int main(int argc, char* argv[])
             }
             count++;
             json forSending;
+            forSending["Command"] = u8"Received";
             forSending["ReceivedIndex"] = json0.at("SendingIndex").get<int>();
             mySend(forSending.dump());
         }
@@ -165,5 +196,6 @@ int main(int argc, char* argv[])
         cerr << e.what() << endl;
         throw e;
     }
+    logfile.close();
     return 0;
 }

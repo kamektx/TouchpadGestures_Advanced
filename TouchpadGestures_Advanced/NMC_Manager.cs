@@ -13,12 +13,21 @@ using System.Windows.Threading;
 
 namespace TouchpadGestures_Advanced
 {
+
+    public class CommandToSend
+    {
+        public string Command { get; set; }
+        public int WindowID { get; set; }
+        public int TabID { get; set; }
+        public int PageID { get; set; }
+    }
     public class NMC_Manager
     {
         private static readonly int TimeToRead = 15;
         private static readonly int TickTime = 5;
         private int TimerReadMilliSeconds;
         private bool IsTimerRunning;
+        public EventWaitHandle IsForBrowserUp;
         public ForBrowser ForBrowserWindow;
         public Thread WindowThread;
         public int WindowState;
@@ -44,9 +53,32 @@ namespace TouchpadGestures_Advanced
                 return temp;
             }
         }
-        public async Task<bool> AssertRunning()
+        public async Task<bool> AssertRunningAsync()
         {
             await MySemaphore.WaitAsync();
+            IsRunning = true;
+            try
+            {
+                Process _NMC = Process.GetProcessById(PID);
+                if (_NMC.HasExited || _NMC.ProcessName != "TGA_NativeMessaging_Cliant")
+                {
+                    IsRunning = false;
+                }
+            }
+            catch (Exception)
+            {
+                IsRunning = false;
+            }
+            if (IsRunning == false)
+            {
+                NativeMessaging.DeleteNMC(this);
+            }
+            MySemaphore.Release();
+            return IsRunning;
+        }
+        public bool AssertRunning()
+        {
+            MySemaphore.Wait();
             IsRunning = true;
             try
             {
@@ -89,7 +121,7 @@ namespace TouchpadGestures_Advanced
                     continue;
                 }
             } while (false);
-            if (sendingObjectJSON != null && sendingObjectJSON[0] != '未')
+            if (sendingObjectJSON != null && sendingObjectJSON[0] != '@')
             {
                 lock (NativeMessaging.SyncObj)
                 {
@@ -123,6 +155,7 @@ namespace TouchpadGestures_Advanced
                 }
             }
             ReadJSON();
+            IsForBrowserUp.WaitOne();
             ForBrowserWindow.Dispatcher.BeginInvoke(ForBrowserWindow.MakeHidden);
             Watcher.Path = MyAppData;
             Watcher.NotifyFilter = NotifyFilters.LastWrite;
@@ -150,6 +183,14 @@ namespace TouchpadGestures_Advanced
             IsTimerRunning = false;
             ReadJSON();
         }
+        public void SendCommand()
+        {
+            var cts = new CommandToSend();
+            cts.Command = "ChangeTab";
+            cts.TabID = ForBrowserWindow.ColumnIndexVsRowIndexVsTabCommon[ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab.Key][ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab.Value].MyTab.TabID;
+            cts.WindowID = ForBrowserWindow.ColumnIndexVsRowIndexVsTabCommon[ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab.Key][ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab.Value].MyTab.WindowID;
+            File.WriteAllText(MyAppData + @"\for_receiving.json", JsonConvert.SerializeObject(cts));
+        }
         public NMC_Manager(string key, int id)
         {
             UsingScreenShot = new HashSet<string>();
@@ -162,6 +203,7 @@ namespace TouchpadGestures_Advanced
             MyAppData = App.NMC_AppData + @"\" + Key;
             IsRunning = true;
             AssertRunning();
+            IsForBrowserUp = new EventWaitHandle(false, EventResetMode.ManualReset);
             if (IsRunning == true)
             {
                 WindowThread = new Thread(() =>
@@ -170,6 +212,7 @@ namespace TouchpadGestures_Advanced
                     SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
                     ForBrowserWindow = new ForBrowser(this, Direction.down); //todo
                     WindowState = 10;
+                    IsForBrowserUp.Set();
                     ForBrowserWindow.Closed += (s, e) =>
            Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
                     ForBrowserWindow.Show();

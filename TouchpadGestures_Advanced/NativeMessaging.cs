@@ -39,21 +39,21 @@ namespace TouchpadGestures_Advanced
                 }
             }
         }
-        internal static async void DeleteNMC(NMC_Manager nmc)
+        internal static void DeleteNMC(NMC_Manager nmc)
         {
             if (nmc.IsRunning == false)
             {
+                if (ActiveNMC == nmc)
+                {
+                    ActiveNMC = null;
+                }
                 nmc.Watcher.Dispose();
                 switch (nmc.WindowState)
                 {
                     case 0:
                         break;
                     case 1:
-                        while(nmc.WindowState != 10)
-                        {
-                            Debug.WriteLine("nmc.WindowState == 1");
-                            await Task.Delay(5);
-                        }
+                        nmc.IsForBrowserUp.WaitOne();
                         goto case 10;
                     case 10:
                         nmc.ForBrowserWindow.Dispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
@@ -93,7 +93,7 @@ namespace TouchpadGestures_Advanced
                     }
                     else
                     {
-                        NMCs[key].AssertRunning();
+                        NMCs[key].AssertRunningAsync();
                     }
                 }
             }

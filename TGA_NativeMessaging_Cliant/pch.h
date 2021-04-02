@@ -31,6 +31,7 @@
 #include <bitset>
 #include <sstream>
 #include <filesystem>
+#include <chrono>
 
 #include "json.hpp"
 #include "FileWatch.hpp"

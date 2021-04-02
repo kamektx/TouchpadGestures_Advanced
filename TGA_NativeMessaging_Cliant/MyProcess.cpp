@@ -3,7 +3,7 @@
 
 using namespace std;
 
-MyProcess::MyProcess(string appPath, string commandLine) {
+MyProcess::MyProcess(string appPath, string commandLine, bool breakAwayFromJob) {
     tStartupInfo = { sizeof(tStartupInfo) };
     tProcessInfomation = { 0 };
     AppPath = utf8_decode(appPath);
@@ -18,7 +18,7 @@ MyProcess::MyProcess(string appPath, string commandLine) {
         NULL,
         NULL,
         FALSE,
-        CREATE_BREAKAWAY_FROM_JOB,
+        breakAwayFromJob ? CREATE_BREAKAWAY_FROM_JOB : NULL,
         NULL,
         NULL,
         &tStartupInfo,
