@@ -10,6 +10,8 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+#include <fcntl.h>
+#include <io.h>
 
 #include <iostream>
 #include <fstream>

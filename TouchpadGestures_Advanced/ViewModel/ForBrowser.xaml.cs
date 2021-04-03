@@ -252,11 +252,11 @@ namespace TouchpadGestures_Advanced
                     }
                 }
                 {
-                    this.Top = (Status.PrimaryWorkingAreaHeight - this.ActualHeight) / 2.0;
+                    this.Top = (Status.PrimaryScreenHeight - this.ActualHeight) / 2.0;
                     double leftTemp;
                     if (this.ActualWidth < Status.ForBrowserMaxWidth)
                     {
-                        leftTemp = (Status.PrimaryWorkingAreaWidth - this.ActualWidth) / 2.0;
+                        leftTemp = (Status.PrimaryScreenWidth - this.ActualWidth) / 2.0;
                         isOverFlow = false;
                     }
                     else
@@ -275,12 +275,25 @@ namespace TouchpadGestures_Advanced
         }
         public void OverFlowHandling(int columnIndex)
         {
-            if (ColumnIndexVsHorizontalBoundary[columnIndex + 1] > Status.ForBrowserMaxWidth)
+            if (columnIndex == ColumnIndexVsRowIndexVsTabCommon.Count - 1)
             {
-                if (columnIndex == ColumnIndexVsRowIndexVsTabCommon.Count - 1)
-                {
-
-                }
+                this.Left = Status.PrimaryScreenWidth - Status.MinimumHorizontalPadding - this.ActualWidth;
+                return;
+            }
+            if (columnIndex == 0)
+            {
+                this.Left = Status.MinimumHorizontalPadding;
+                return;
+            }
+            if (this.Left + MyData.WindowPadding + ColumnIndexVsHorizontalBoundary[columnIndex + 1] > Status.PrimaryScreenWidth - Status.WidthForRemainingColumns)
+            {
+                this.Left = Status.PrimaryScreenWidth - Status.WidthForRemainingColumns - MyData.WindowPadding - ColumnIndexVsHorizontalBoundary[columnIndex + 1];
+                return;
+            }
+            if (this.Left + MyData.WindowPadding + ColumnIndexVsHorizontalBoundary[columnIndex] < Status.WidthForRemainingColumns)
+            {
+                this.Left = Status.WidthForRemainingColumns - MyData.WindowPadding - ColumnIndexVsHorizontalBoundary[columnIndex];
+                return;
             }
         }
 

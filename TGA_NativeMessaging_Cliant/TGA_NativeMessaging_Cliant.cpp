@@ -48,6 +48,8 @@ int main(int argc, char* argv[])
             file.close();
         }
 
+        _setmode(_fileno(stdin), _O_BINARY);
+
         string fileName = app.MyAppData + "\\for_receiving.json";
         {
             ofstream fileForReceiving(fileName);
@@ -99,6 +101,7 @@ int main(int argc, char* argv[])
             countTemp++;
             BYTE buff[4];
             unsigned int length = 0;
+            this_thread::sleep_for(chrono::milliseconds(3));
             int dataSizeLength = fread(buff, sizeof(char), 4, stdin);
             if (dataSizeLength != 4) {
                 cerr << "dataSizeLength length:" << dataSizeLength << endl;
@@ -122,8 +125,8 @@ int main(int argc, char* argv[])
             if (buff2 == NULL) {
                 return 0;
             }
-            this_thread::sleep_for(chrono::milliseconds(5));
-            fread(buff2, sizeof(char), length, stdin);
+            this_thread::sleep_for(chrono::milliseconds(3));
+            unsigned int readSize = fread(buff2, sizeof(char), length, stdin);
             buff2[length] = '\0';
 
             json json0 = json::parse(buff2);
@@ -190,12 +193,13 @@ int main(int argc, char* argv[])
             forSending["Command"] = u8"Received";
             forSending["ReceivedIndex"] = json0.at("SendingIndex").get<int>();
             mySend(forSending.dump());
+            free(buff2);
         }
     }
     catch (exception e) {
         cerr << e.what() << endl;
-        throw e;
     }
     logfile.close();
+    this_thread::sleep_for(chrono::milliseconds(20*1000));
     return 0;
 }

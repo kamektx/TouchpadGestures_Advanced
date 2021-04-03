@@ -23,10 +23,8 @@ namespace TouchpadGestures_Advanced
     }
     public class NMC_Manager
     {
-        private static readonly int TimeToRead = 15;
-        private static readonly int TickTime = 5;
-        private int TimerReadMilliSeconds;
-        private bool IsTimerRunning;
+        private static readonly int FileModifiedIgnoreTime = 30;
+        private DateTime beforeTime;
         public EventWaitHandle IsForBrowserUp;
         public ForBrowser ForBrowserWindow;
         public Thread WindowThread;
@@ -103,24 +101,19 @@ namespace TouchpadGestures_Advanced
         {
             MySemaphore.Wait();
             string sendingObjectJSON = null;
-            int count = 0;
-            do
+            for (int i = 0; i < 100; i++)
             {
                 try
                 {
+                    Thread.Sleep(5);
                     sendingObjectJSON = File.ReadAllText(MyAppData + @"\sending_object.json", Encoding.UTF8);
+                    break;
                 }
                 catch (IOException)
                 {
-                    count++;
-                    if (count > 100)
-                    {
-                        throw;
-                    }
-                    Thread.Sleep(5);
                     continue;
                 }
-            } while (false);
+            }
             if (sendingObjectJSON != null && sendingObjectJSON[0] != '@')
             {
                 lock (NativeMessaging.SyncObj)
@@ -129,11 +122,7 @@ namespace TouchpadGestures_Advanced
                     NativeMessaging.DeserializingNMC_Key = Key;
                     SendingObject = JsonConvert.DeserializeObject<SendingObject>(sendingObjectJSON);
                 }
-                while (ForBrowserWindow == null)
-                {
-                    Thread.Sleep(5);
-                    Debug.WriteLine("ForBrowserWindow == null");
-                }
+                IsForBrowserUp.WaitOne();
                 if (IsActive)
                 {
                     NativeMessaging.ActiveNMC = this;
@@ -166,21 +155,8 @@ namespace TouchpadGestures_Advanced
 
         public void OnSendingObjectChanged(object source, FileSystemEventArgs e)
         {
-            TimerReadMilliSeconds = TimeToRead;
-            if (!IsTimerRunning)
-            {
-                IsTimerRunning = true;
-                ReadTimer();
-            }
-        }
-        public async Task ReadTimer()
-        {
-            while (TimerReadMilliSeconds > 0)
-            {
-                await Task.Delay(TickTime);
-                TimerReadMilliSeconds -= TickTime;
-            }
-            IsTimerRunning = false;
+            if ((DateTime.Now - beforeTime).TotalMilliseconds < FileModifiedIgnoreTime) return;
+            beforeTime = DateTime.Now;
             ReadJSON();
         }
         public void SendCommand()
@@ -203,6 +179,7 @@ namespace TouchpadGestures_Advanced
             MyAppData = App.NMC_AppData + @"\" + Key;
             IsRunning = true;
             AssertRunning();
+            beforeTime = DateTime.Now - TimeSpan.FromSeconds(1);
             IsForBrowserUp = new EventWaitHandle(false, EventResetMode.ManualReset);
             if (IsRunning == true)
             {

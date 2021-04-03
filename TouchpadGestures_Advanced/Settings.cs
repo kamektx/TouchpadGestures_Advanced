@@ -52,7 +52,7 @@ namespace TouchpadGestures_Advanced
             set { _ThresholdMultiplier = value; }
         }
 
-        private double _VerticalThresholdSmall = 75.0;
+        private double _VerticalThresholdSmall = 68.0;
         public double VerticalThresholdSmall
         {
             get
@@ -64,7 +64,7 @@ namespace TouchpadGestures_Advanced
                 _VerticalThresholdSmall = value;
             }
         }
-        private double _VerticalMultiplierForBig = 1.2;
+        private double _VerticalMultiplierForBig = 1.3;
         public double VerticalMultiplierForBig
         {
             get { return _VerticalMultiplierForBig; }
@@ -120,12 +120,13 @@ namespace TouchpadGestures_Advanced
     public static class Status
     {
         public static string ForegroundApplication { get; set; }
-        public static int PrimaryWorkingAreaWidth = (int)SystemParameters.WorkArea.Width;
-        public static int PrimaryWorkingAreaHeight = (int)SystemParameters.WorkArea.Height;
-        public static int ForBrowserMaxHeight = PrimaryWorkingAreaHeight - 140;
-        public static int ForBrowserMaxWidth = PrimaryWorkingAreaWidth - 180;
-        public static int MaxRowsOfTabWithImage = ForBrowserMaxHeight / 165;
-        public static int MinimumVerticalPadding = 30;
+        public static int PrimaryScreenWidth = (int)SystemParameters.PrimaryScreenWidth;
+        public static int PrimaryScreenHeight = (int)SystemParameters.PrimaryScreenHeight;
+        public static int ForBrowserMaxHeight = PrimaryScreenHeight - 140;
         public static int MinimumHorizontalPadding = 40;
+        //public static int MinimumVerticalPadding = 30;
+        public static int ForBrowserMaxWidth = PrimaryScreenWidth - MinimumHorizontalPadding * 2;
+        public static int MaxRowsOfTabWithImage = ForBrowserMaxHeight / 165;
+        public static int WidthForRemainingColumns = 120;
     }
 }
