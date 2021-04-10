@@ -8,7 +8,7 @@ namespace TouchpadGestures_Advanced
 {
     static class BitmapImageExtension
     {
-        public static BitmapImage MyInit(Uri preferred, Uri alternative, int retry = 2)
+        public static BitmapImage MyInit(Uri preferred, Uri alternative, int decodePixelWidth = 0, int retry = 2)
         {
             BitmapImage bi = new BitmapImage();
             if (preferred != null && File.Exists(preferred.OriginalString))
@@ -20,6 +20,7 @@ namespace TouchpadGestures_Advanced
                     {
                         bi = new BitmapImage();
                         bi.BeginInit();
+                        if (decodePixelWidth > 0) bi.DecodePixelWidth = decodePixelWidth;
                         bi.CacheOption = BitmapCacheOption.OnLoad;
                         bi.UriSource = preferred;
                         bi.EndInit();
@@ -35,6 +36,7 @@ namespace TouchpadGestures_Advanced
                 {
                     bi = new BitmapImage();
                     bi.BeginInit();
+                    if (decodePixelWidth > 0) bi.DecodePixelWidth = decodePixelWidth;
                     bi.CacheOption = BitmapCacheOption.OnLoad;
                     bi.UriSource = alternative;
                     bi.EndInit();
@@ -44,6 +46,7 @@ namespace TouchpadGestures_Advanced
             {
                 bi = new BitmapImage();
                 bi.BeginInit();
+                if (decodePixelWidth > 0) bi.DecodePixelWidth = decodePixelWidth;
                 bi.CacheOption = BitmapCacheOption.OnLoad;
                 bi.UriSource = alternative;
                 bi.EndInit();

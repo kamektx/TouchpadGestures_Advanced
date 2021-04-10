@@ -326,11 +326,14 @@ namespace TouchpadGestures_Advanced
         public int WindowPadding { get; set; } = 20;
         private ForBrowser MyForBrowser;
 
-        private KeyValuePair<int, int> _ColumnIndexAndRowIndexOfSelectedTab;
+        private KeyValuePair<int, int> _ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(0,0);
 
         public KeyValuePair<int, int> ColumnIndexAndRowIndexOfSelectedTab
         {
-            get => _ColumnIndexAndRowIndexOfSelectedTab;
+            get
+            {
+                return _ColumnIndexAndRowIndexOfSelectedTab;
+            }
             set
             {
                 if (_ColumnIndexAndRowIndexOfSelectedTab.Equals(value)) return;

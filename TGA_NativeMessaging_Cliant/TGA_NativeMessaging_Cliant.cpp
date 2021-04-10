@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
     InitializeMagick(argv[0]);
 
     try {
-        MyProcess TGA("C:\\Users\\TakumiK\\source\\repos\\TouchpadGestures_Advanced\\TouchpadGestures_Advanced\\bin\\Release\\netcoreapp3.1\\TouchpadGestures_Advanced.exe", "");
+        MyProcess TGA(app.TGA_AppData + "\\bin\\TGA\\TouchpadGestures_Advanced.exe", "");
 
         if (events.TGA_Init != NULL) {
             WaitForSingleObject(events.TGA_Init, INFINITE);
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
             countTemp++;
             BYTE buff[4];
             unsigned int length = 0;
-            this_thread::sleep_for(chrono::milliseconds(3));
+            this_thread::sleep_for(chrono::milliseconds(2));
             int dataSizeLength = fread(buff, sizeof(char), 4, stdin);
             if (dataSizeLength != 4) {
                 cerr << "dataSizeLength length:" << dataSizeLength << endl;
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
             if (buff2 == NULL) {
                 return 0;
             }
-            this_thread::sleep_for(chrono::milliseconds(3));
+            this_thread::sleep_for(chrono::milliseconds(2));
             unsigned int readSize = fread(buff2, sizeof(char), length, stdin);
             buff2[length] = '\0';
 

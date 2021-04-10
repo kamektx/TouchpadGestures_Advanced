@@ -14,7 +14,7 @@ namespace TouchpadGestures_Advanced
         public MyNotifyIcon()
         {
             icon = new NotifyIcon();
-            icon.Icon = new System.Drawing.Icon(@"C:\Users\TakumiK\source\repos\TouchpadGestures_Advanced\TouchpadGestures_Advanced\Icon\TGA_icon.ico");
+            icon.Icon = new System.Drawing.Icon(App.TGA_AppData + @"\Icon\TGA_icon.ico");
             icon.Visible = true;
             icon.Text = "TouchpadGestures Advanced";
 

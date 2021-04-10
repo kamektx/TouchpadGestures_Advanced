@@ -15,6 +15,7 @@ namespace TouchpadGestures_Advanced
         public TabWithImage2Data MyData;
         public BitmapImage MyImageSource;
         public BitmapImage MyFaviconSource;
+        static int DecodePixelWidth = 300;
         public TabWithImage2(NMC_Manager myNMC, SendingObject.MyWindow.MyTab myTab, StackPanel sp, StackPanel wrapperSP, ForBrowser forBrowser, int rowIndex, int columnIndex, int tabIndex, int columnsIndex)
         : base(myNMC, myTab, sp, wrapperSP, forBrowser, rowIndex, columnIndex, tabIndex, columnsIndex)
         {
@@ -22,7 +23,7 @@ namespace TouchpadGestures_Advanced
             this.DataContext = this.MyData;
             InitializeComponent();
             this.Width = sp.Width;
-            this.MyImageSource = BitmapImageExtension.MyInit(MyTab.ScreenShot != null ? new Uri(MyNMC.MyAppData + @"\screenshot\" + MyTab.ScreenShot) : null, DefaultImageSourceUri);
+            this.MyImageSource = BitmapImageExtension.MyInit(MyTab.ScreenShot != null ? new Uri(MyNMC.MyAppData + @"\screenshot\" + MyTab.ScreenShot) : null, DefaultImageSourceUri, DecodePixelWidth);
             this.MyFaviconSource = BitmapImageExtension.MyInit(MyTab.Favicon != null ? new Uri(MyNMC.MyAppData + @"\favicon\png\" + MyTab.Favicon + @".png") : null, DefaultFaviconSourceUri);
 
             this.MyTitle.Text = myTab.Title ?? "";
