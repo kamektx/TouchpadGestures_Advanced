@@ -2,7 +2,7 @@
 
 ## What's this?
 
-This Application was created to extend the multi-fingered gesture experience of your Precision Touchpad. 
+This Application was created to extend the multi-fingered gesture experience of your Precision Touchpad.
 
 The standard feature of Windows 10 allows users to switch foreground windows by sliding your touchpad with three-fingers to the right. This application also allows users to switch tabs within a window with similar touchpad gestures.
 
@@ -10,9 +10,12 @@ The standard feature of Windows 10 allows users to switch foreground windows by 
 
 ### Now
 
-Dispatches Ctrl-Tab / Ctrl-Shift-Tab shortcuts by sliding your touchpad down/up with three-fingers. It won't conflict any other gestures enabled by Windows10 in Settings - Devices - Touchpad.
+- You can type Ctrl (+ Shift) + Tab by stroking the touchpad up and down.
+- With [WebExtension for Firefox](https://github.com/kamektx/WebExtensions_for_TGA), you can switch tabs by pop-up windows.
 
-### In Development
+## How to Use?
 
-Provides an additional multi-fingered experience for softwares like Chrome/Firefox that uses the extensions for this application.
-
+- Download the installer in Releases page.
+- Unzip the installer's zip.
+- Run "setup.exe". Administrator privileges are required.
+- Change your default touchpad gesture settings on Windows; Press start button, Go to Settings, Open "Devices", Select "Touchpad" tab, Click "Advanced gesture configuration" button, In "Configure your three finger gestures" paragraph, Set "Up" and "Down" to "Nothing". To set "Right" to "Switch apps" is recommended.
