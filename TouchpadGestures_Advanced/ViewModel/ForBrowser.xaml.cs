@@ -214,16 +214,13 @@ namespace TouchpadGestures_Advanced
                     }
                 }
             }
-            else
-            {
-                Background = Brushes.Transparent;
-            }
             MyNMC.MySemaphore.Release();
         }
 
         public void MakeVisible()
         {
-            Visibility = Visibility.Visible;
+            Opacity = 1.0;
+            //Visibility = Visibility.Visible;
             ColumnIndexVsHorizontalBoundary.Clear();
             ColumnIndexVsRowIndexVsVerticalBoundary.Clear();
             this.Dispatcher.Invoke(() =>
@@ -271,7 +268,8 @@ namespace TouchpadGestures_Advanced
 
         public void MakeHidden()
         {
-            Visibility = Visibility.Hidden;
+            Opacity = 0.0;
+            //Visibility = Visibility.Hidden;
         }
         public void OverFlowHandling(int columnIndex)
         {
@@ -299,7 +297,8 @@ namespace TouchpadGestures_Advanced
 
         public ForBrowser(NMC_Manager nMC_Magager, Direction direction) : base()
         {
-            Visibility = Visibility.Hidden;
+            Visibility = Visibility.Visible;
+            Opacity = 0.0;
             MyDirection = direction;
             SPs = new List<StackPanel>();
             ColumnIndexVsHorizontalBoundary = new List<double>();

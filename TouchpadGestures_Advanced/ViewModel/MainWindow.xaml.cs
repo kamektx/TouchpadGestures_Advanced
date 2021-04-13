@@ -40,6 +40,7 @@ namespace TouchpadGestures_Advanced
         }
         public MainWindow() : base()
         {
+            this.Visibility = Visibility.Hidden;
             InitializeComponent();
             SourceInitialized += RawInputActivater;
             SourceInitialized += OtherTasks;

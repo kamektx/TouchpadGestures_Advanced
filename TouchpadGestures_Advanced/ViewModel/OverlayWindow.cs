@@ -107,6 +107,9 @@ namespace TouchpadGestures_Advanced
 
         private const int VK_F4 = 0x73;
 
+        private const int WS_EX_APPWINDOW = 0x00040000;
+        private const int WS_EX_TOOLWINDOW = 0x00000080;
+
         #endregion
 
         #region Win32Apis
@@ -121,20 +124,23 @@ namespace TouchpadGestures_Advanced
 
         public OverlayWindow()
         {
-            this.Visibility = Visibility.Hidden;
+            //this.Visibility = Visibility.Hidden;
             // 透過背景
             this.WindowStyle = WindowStyle.None;
             this.AllowsTransparency = true;
             this.Background = new SolidColorBrush(Colors.Transparent);
 
             // 全画面表示
-            this.WindowState = WindowState.Maximized;
+            //this.WindowState = WindowState.Maximized;
 
             // 最前面表示
             this.Topmost = true;
 
             //タスクバーに表示しない
             this.ShowInTaskbar = false;
+            this.ShowSystemMenu = false;
+
+            this.AsToolWindow = true;
 
         }
 
@@ -146,6 +152,8 @@ namespace TouchpadGestures_Advanced
 
             //クリックをスルー
             this.SetClickThrough(this.ClickThrough);
+
+            this.SetAsToolWindow(this.AsToolWindow);
 
             //Alt + F4 を無効化
             var handle = new WindowInteropHelper(this).Handle;
@@ -202,6 +210,38 @@ namespace TouchpadGestures_Advanced
                 }
 
                 SetWindowLong(handle, GWL_STYLE, windowStyle);
+
+            }
+            catch
+            {
+
+            }
+
+        }
+
+        private bool AsToolWindow = true;
+        protected void SetAsToolWindow(bool value)
+        {
+
+            try
+            {
+
+                var handle = new WindowInteropHelper(this).Handle;
+
+                int windowStyle = GetWindowLong(handle, GWL_EXSTYLE);
+
+                if (value)
+                {
+                    windowStyle |= WS_EX_TOOLWINDOW;
+                    windowStyle &= ~WS_EX_APPWINDOW;
+                }
+                else
+                {
+                    windowStyle &= ~WS_EX_TOOLWINDOW;
+                    windowStyle |= WS_EX_APPWINDOW;
+                }
+
+                SetWindowLong(handle, GWL_EXSTYLE, windowStyle);
 
             }
             catch
