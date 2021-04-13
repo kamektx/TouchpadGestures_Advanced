@@ -17,7 +17,24 @@ The standard feature of Windows 10 allows users to switch foreground windows by 
 
 ## How to Use?
 
+- This application is for **Windows 10** only.
 - Download the installer in Releases page.
 - Unzip the installer's zip.
 - Run "setup.exe". Administrator privileges are required.
 - Change your default touchpad gesture settings on Windows; Press start button, Go to Settings, Open "Devices", Select "Touchpad" tab, Click "Advanced gesture configuration" button, In "Configure your three finger gestures" paragraph, Set "Up" and "Down" to "Nothing". To set "Right" to "Switch apps" is recommended.
+
+## How to Develop?
+
+- First, install TouchpadGestures Advanced.
+
+### TGA_NativeMessaging_Cliant.exe 
+
+- You can't build it as debug build.
+- Build it as release build.
+- Move the generated TGA_NativeMessaging_Cliant.exe to "%AppData%/Local/TouchpadGestures_Advanced/bin/NMC/".
+- Run Firefox.
+
+### Other projects
+
+- Exit installed TouchpadGestures_Advance.exe via TaskTray.
+- Build and Debug.

@@ -15,7 +15,7 @@ namespace TouchpadGestures_Advanced
         public TabWithImage2Data MyData;
         public BitmapImage MyImageSource;
         public BitmapImage MyFaviconSource;
-        static int DecodePixelWidth = 300;
+        static int DecodePixelWidth = 500;
         public TabWithImage2(NMC_Manager myNMC, SendingObject.MyWindow.MyTab myTab, StackPanel sp, StackPanel wrapperSP, ForBrowser forBrowser, int rowIndex, int columnIndex, int tabIndex, int columnsIndex)
         : base(myNMC, myTab, sp, wrapperSP, forBrowser, rowIndex, columnIndex, tabIndex, columnsIndex)
         {
