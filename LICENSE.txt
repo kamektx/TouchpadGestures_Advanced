@@ -1,4 +1,15 @@
-Copyright (c) 2021 kamektx(Takumi Kameyama). This software is released under the MIT License. This TouchpadGestures Advanced software uses ImageMagick, licensed under the ImageMagick License; you may not use this file except in compliance with the ImageMagick License. You may obtain a copy of the ImageMagick License at (https://imagemagick.org/script/license.php). Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. And this TouchpadGestures Advanced software uses several MIT Licensed softwares.
+Copyright (c) 2021 kamektx(Takumi Kameyama).
+
+This software is released under the MIT License.
+
+The source code is at (https://github.com/kamektx/TouchpadGestures_Advanced).
+
+This TouchpadGestures Advanced software uses ImageMagick, licensed under the ImageMagick License; you may not use this file except in compliance with the ImageMagick License. You may obtain a copy of the ImageMagick License at (https://imagemagick.org/script/license.php). Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+And this TouchpadGestures Advanced software uses several MIT Licensed softwares.
+
+
+
 
 MIT License
 
