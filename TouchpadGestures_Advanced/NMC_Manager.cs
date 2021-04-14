@@ -51,6 +51,28 @@ namespace TouchpadGestures_Advanced
                 return temp;
             }
         }
+        public async Task DeleteOldScreenShotAsync()
+        {
+            var files = Directory.GetFiles(MyAppData + @"\screenshot");
+            await Task.Delay(2000);
+            await MySemaphore.WaitAsync();
+            foreach (var file in files)
+            {
+                var fileInfo = new FileInfo(file);
+                if (!UsingScreenShot.Contains(fileInfo.Name))
+                {
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+            }
+            MySemaphore.Release();
+        }
         public async Task<bool> AssertRunningAsync()
         {
             await MySemaphore.WaitAsync();
@@ -97,9 +119,9 @@ namespace TouchpadGestures_Advanced
             MySemaphore.Release();
             return IsRunning;
         }
-        public void ReadJSON()
+        public async Task ReadJSON()
         {
-            MySemaphore.Wait();
+            await MySemaphore.WaitAsync();
             string sendingObjectJSON = null;
             for (int i = 0; i < 100; i++)
             {
@@ -116,12 +138,11 @@ namespace TouchpadGestures_Advanced
             }
             if (sendingObjectJSON != null && sendingObjectJSON[0] != '@')
             {
-                lock (NativeMessaging.SyncObj)
-                {
-                    UsingScreenShot.Clear();
-                    NativeMessaging.DeserializingNMC_Key = Key;
-                    SendingObject = JsonConvert.DeserializeObject<SendingObject>(sendingObjectJSON);
-                }
+                await NativeMessaging.Semaphore.WaitAsync();
+                UsingScreenShot.Clear();
+                NativeMessaging.DeserializingNMC_Key = Key;
+                SendingObject = JsonConvert.DeserializeObject<SendingObject>(sendingObjectJSON);
+                NativeMessaging.Semaphore.Release();
                 IsForBrowserUp.WaitOne();
                 if (IsActive)
                 {
@@ -143,7 +164,7 @@ namespace TouchpadGestures_Advanced
                     throw new Exception();
                 }
             }
-            ReadJSON();
+            await ReadJSON();
             IsForBrowserUp.WaitOne();
             ForBrowserWindow.Dispatcher.BeginInvoke(ForBrowserWindow.MakeHidden);
             Watcher.Path = MyAppData;

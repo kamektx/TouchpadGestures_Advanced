@@ -14,7 +14,7 @@ namespace TouchpadGestures_Advanced
 {
     public static class NativeMessaging
     {
-        public static object SyncObj = new object();
+        public static SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
         public static string DeserializingNMC_Key = "";
         public static NMC_Manager ActiveNMC = null;
 
@@ -69,10 +69,9 @@ namespace TouchpadGestures_Advanced
                 }
                 App.Registry_TGA_NMC.SetValue("NMC" + nmc.ID + "_Key", "", RegistryValueKind.String);
                 App.Registry_TGA_NMC.SetValue("NMC" + nmc.ID + "_PID", 0, RegistryValueKind.DWord);
-                lock (SyncObj)
-                {
-                    NMCs.Remove(nmc.Key);
-                }
+                Semaphore.Wait();
+                NMCs.Remove(nmc.Key);
+                Semaphore.Release();
             }
         }
 
@@ -86,13 +85,13 @@ namespace TouchpadGestures_Advanced
                     string key = (string)App.Registry_TGA_NMC.GetValue("NMC" + i + "_Key");
                     if (NMCs.ContainsKey(key) == false)
                     {
-                        lock (SyncObj)
-                        {
-                            NMCs.Add(key, new NMC_Manager(key, i));
-                        }
+                        Semaphore.Wait();
+                        NMCs.Add(key, new NMC_Manager(key, i));
+                        Semaphore.Release();
                     }
                     else
                     {
+                        NMCs[key].DeleteOldScreenShotAsync();
                         NMCs[key].AssertRunningAsync();
                     }
                 }
