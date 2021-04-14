@@ -12,7 +12,7 @@ The standard feature of Windows 10 allows users to switch foreground windows by 
 
 ### Now
 
-- You can type Ctrl (+ Shift) + Tab by stroking the touchpad up and down.
+- You can type Ctrl (+ Shift) + Tab by stroking the touchpad up and down with 3 fingers.
 - With [WebExtension for Firefox](https://github.com/kamektx/WebExtensions_for_TGA), you can switch tabs by pop-up windows.
 
 ## How to Use?
@@ -20,7 +20,7 @@ The standard feature of Windows 10 allows users to switch foreground windows by 
 - This application is for **Windows 10** only.
 - Download the installer in Releases page.
 - Unzip the installer's zip.
-- Run "setup.exe". Administrator privileges are required.
+- Run "setup.exe".
 - Change your default touchpad gesture settings on Windows; Press start button, Go to Settings, Open "Devices", Select "Touchpad" tab, Click "Advanced gesture configuration" button, In "Configure your three finger gestures" paragraph, Set "Up" and "Down" to "Nothing". To set "Right" to "Switch apps" is recommended.
 
 ## How to Develop?
