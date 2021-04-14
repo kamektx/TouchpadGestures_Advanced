@@ -73,29 +73,6 @@ namespace TouchpadGestures_Advanced
             }
             MySemaphore.Release();
         }
-        public async Task<bool> AssertRunningAsync()
-        {
-            await MySemaphore.WaitAsync();
-            IsRunning = true;
-            try
-            {
-                Process _NMC = Process.GetProcessById(PID);
-                if (_NMC.HasExited || _NMC.ProcessName != "TGA_NativeMessaging_Cliant")
-                {
-                    IsRunning = false;
-                }
-            }
-            catch (Exception)
-            {
-                IsRunning = false;
-            }
-            if (IsRunning == false)
-            {
-                NativeMessaging.DeleteNMC(this);
-            }
-            MySemaphore.Release();
-            return IsRunning;
-        }
         public bool AssertRunning()
         {
             MySemaphore.Wait();
@@ -114,7 +91,7 @@ namespace TouchpadGestures_Advanced
             }
             if (IsRunning == false)
             {
-                NativeMessaging.DeleteNMC(this);
+                _ = NativeMessaging.DeleteNMC(this);
             }
             MySemaphore.Release();
             return IsRunning;
@@ -138,11 +115,14 @@ namespace TouchpadGestures_Advanced
             }
             if (sendingObjectJSON != null && sendingObjectJSON[0] != '@')
             {
-                await NativeMessaging.Semaphore.WaitAsync();
-                UsingScreenShot.Clear();
-                NativeMessaging.DeserializingNMC_Key = Key;
-                SendingObject = JsonConvert.DeserializeObject<SendingObject>(sendingObjectJSON);
-                NativeMessaging.Semaphore.Release();
+                await Task.Run(() =>
+                {
+                    NativeMessaging.Semaphore.Wait();
+                    UsingScreenShot.Clear();
+                    NativeMessaging.DeserializingNMC_Key = Key;
+                    SendingObject = JsonConvert.DeserializeObject<SendingObject>(sendingObjectJSON);
+                    NativeMessaging.Semaphore.Release();
+                });
                 IsForBrowserUp.WaitOne();
                 if (IsActive)
                 {
@@ -199,7 +179,7 @@ namespace TouchpadGestures_Advanced
             PID = (int)App.Registry_TGA_NMC.GetValue("NMC" + ID + "_PID");
             MyAppData = App.NMC_AppData + @"\" + Key;
             IsRunning = true;
-            AssertRunning();
+            if (!AssertRunning()) return;
             beforeTime = DateTime.Now - TimeSpan.FromSeconds(1);
             IsForBrowserUp = new EventWaitHandle(false, EventResetMode.ManualReset);
             if (IsRunning == true)

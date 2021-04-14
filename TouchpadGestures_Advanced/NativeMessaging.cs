@@ -8,8 +8,6 @@ using System.Threading;
 using Microsoft.Win32;
 using System.Windows.Threading;
 
-#pragma warning disable CS4014
-
 namespace TouchpadGestures_Advanced
 {
     public static class NativeMessaging
@@ -39,14 +37,10 @@ namespace TouchpadGestures_Advanced
                 }
             }
         }
-        internal static void DeleteNMC(NMC_Manager nmc)
+        internal static async Task DeleteNMC(NMC_Manager nmc)
         {
             if (nmc.IsRunning == false)
             {
-                if (ActiveNMC == nmc)
-                {
-                    ActiveNMC = null;
-                }
                 nmc.Watcher.Dispose();
                 switch (nmc.WindowState)
                 {
@@ -69,9 +63,15 @@ namespace TouchpadGestures_Advanced
                 }
                 App.Registry_TGA_NMC.SetValue("NMC" + nmc.ID + "_Key", "", RegistryValueKind.String);
                 App.Registry_TGA_NMC.SetValue("NMC" + nmc.ID + "_PID", 0, RegistryValueKind.DWord);
-                Semaphore.Wait();
-                NMCs.Remove(nmc.Key);
-                Semaphore.Release();
+                _ = Task.Run(() => {
+                    Semaphore.Wait();
+                    if (ActiveNMC == nmc)
+                    {
+                        ActiveNMC = null;
+                    }
+                    NMCs.Remove(nmc.Key);
+                    Semaphore.Release();
+                });
             }
         }
 
@@ -83,17 +83,17 @@ namespace TouchpadGestures_Advanced
                 if (((1 << i) & NMC_Running) != 0)
                 {
                     string key = (string)App.Registry_TGA_NMC.GetValue("NMC" + i + "_Key");
+                    Semaphore.Wait();
                     if (NMCs.ContainsKey(key) == false)
                     {
-                        Semaphore.Wait();
                         NMCs.Add(key, new NMC_Manager(key, i));
-                        Semaphore.Release();
                     }
                     else
                     {
-                        NMCs[key].DeleteOldScreenShotAsync();
-                        NMCs[key].AssertRunningAsync();
+                        _ = NMCs[key].DeleteOldScreenShotAsync();
+                        NMCs[key].AssertRunning();
                     }
+                    Semaphore.Release();
                 }
             }
         }
