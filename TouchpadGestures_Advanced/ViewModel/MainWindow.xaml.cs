@@ -35,6 +35,7 @@ namespace TouchpadGestures_Advanced
         }
         internal void OtherTasks(object sender, EventArgs e)
         {
+            Events.RunEventLoopForNMC_Created();
             NativeMessaging.Timer();
             ForegroundWindowWatcher.SubscribeToWindowEvents();
         }

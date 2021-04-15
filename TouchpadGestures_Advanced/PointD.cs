@@ -51,6 +51,11 @@ namespace TouchpadGestures_Advanced
             X = x;
             Y = y;
         }
+        public PointD(in PointD p)
+        {
+            X = p.X;
+            Y = p.Y;
+        }
 
         public static PointD operator +(PointD a, PointD b)
         {

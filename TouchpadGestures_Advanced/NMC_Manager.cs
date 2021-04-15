@@ -53,28 +53,33 @@ namespace TouchpadGestures_Advanced
         }
         public async Task DeleteOldScreenShotAsync()
         {
-            var files = Directory.GetFiles(MyAppData + @"\screenshot");
-            await Task.Delay(2000);
-            await MySemaphore.WaitAsync();
-            foreach (var file in files)
+            await Task.Run(() =>
             {
-                var fileInfo = new FileInfo(file);
-                if (!UsingScreenShot.Contains(fileInfo.Name))
+                var files = Directory.GetFiles(MyAppData + @"\screenshot");
+                Thread.Sleep(2000);
+                MySemaphore.Wait();
+                foreach (var file in files)
                 {
-                    try
+                    var fileInfo = new FileInfo(file);
+                    if (!UsingScreenShot.Contains(fileInfo.Name))
                     {
-                        File.Delete(file);
-                    }
-                    catch (Exception)
-                    {
+                        try
+                        {
+                            File.Delete(file);
+                        }
+                        catch (Exception)
+                        {
 
+                        }
                     }
                 }
-            }
-            MySemaphore.Release();
+                MySemaphore.Release();
+            });
         }
         public bool AssertRunning()
         {
+            // Only this method can call MySemaphore.Wait() outside of Task.Run().
+            // In other method, CALL MySemaphore.Wait() IN Task.Run()!!
             MySemaphore.Wait();
             IsRunning = true;
             try
@@ -91,46 +96,49 @@ namespace TouchpadGestures_Advanced
             }
             if (IsRunning == false)
             {
-                _ = NativeMessaging.DeleteNMC(this);
+                NativeMessaging.DeleteNMC(this);
             }
             MySemaphore.Release();
             return IsRunning;
         }
         public async Task ReadJSON()
         {
-            await MySemaphore.WaitAsync();
-            string sendingObjectJSON = null;
-            for (int i = 0; i < 100; i++)
+            await Task.Run(async () =>
             {
-                try
+                await MySemaphore.WaitAsync();
+                string sendingObjectJSON = null;
+                for (int i = 0; i < 100; i++)
                 {
-                    Thread.Sleep(5);
-                    sendingObjectJSON = File.ReadAllText(MyAppData + @"\sending_object.json", Encoding.UTF8);
-                    break;
+                    try
+                    {
+                        await Task.Delay(5);
+                        sendingObjectJSON = File.ReadAllText(MyAppData + @"\sending_object.json", Encoding.UTF8);
+                        break;
+                    }
+                    catch (IOException)
+                    {
+                        continue;
+                    }
                 }
-                catch (IOException)
+                if (sendingObjectJSON != null && sendingObjectJSON[0] != '@')
                 {
-                    continue;
+                    await Task.Run(() =>
+                    {
+                        NativeMessaging.Semaphore.Wait();
+                        UsingScreenShot.Clear();
+                        NativeMessaging.DeserializingNMC_Key = Key;
+                        SendingObject = JsonConvert.DeserializeObject<SendingObject>(sendingObjectJSON);
+                        NativeMessaging.Semaphore.Release();
+                    });
+                    IsForBrowserUp.WaitOne();
+                    if (IsActive)
+                    {
+                        NativeMessaging.ActiveNMC = this;
+                    }
+                    ForBrowserWindow.Dispatcher.BeginInvoke(ForBrowserWindow.Refresh);
                 }
-            }
-            if (sendingObjectJSON != null && sendingObjectJSON[0] != '@')
-            {
-                await Task.Run(() =>
-                {
-                    NativeMessaging.Semaphore.Wait();
-                    UsingScreenShot.Clear();
-                    NativeMessaging.DeserializingNMC_Key = Key;
-                    SendingObject = JsonConvert.DeserializeObject<SendingObject>(sendingObjectJSON);
-                    NativeMessaging.Semaphore.Release();
-                });
-                IsForBrowserUp.WaitOne();
-                if (IsActive)
-                {
-                    NativeMessaging.ActiveNMC = this;
-                }
-                ForBrowserWindow.Dispatcher.BeginInvoke(ForBrowserWindow.Refresh);
-            }
-            MySemaphore.Release();
+                MySemaphore.Release();
+            });
         }
         public async Task StartDirectoryWatch()
         {
@@ -146,7 +154,7 @@ namespace TouchpadGestures_Advanced
             }
             await ReadJSON();
             IsForBrowserUp.WaitOne();
-            ForBrowserWindow.Dispatcher.BeginInvoke(ForBrowserWindow.MakeHidden);
+            Watcher = new FileSystemWatcher();
             Watcher.Path = MyAppData;
             Watcher.NotifyFilter = NotifyFilters.LastWrite;
             Watcher.Filter = "sending_object.json";
@@ -170,9 +178,7 @@ namespace TouchpadGestures_Advanced
         }
         public NMC_Manager(string key, int id)
         {
-            UsingScreenShot = new HashSet<string>();
             WindowState = 0;
-            Watcher = new FileSystemWatcher();
             MySemaphore = new SemaphoreSlim(1, 1);
             Key = key;
             ID = id;
@@ -180,6 +186,7 @@ namespace TouchpadGestures_Advanced
             MyAppData = App.NMC_AppData + @"\" + Key;
             IsRunning = true;
             if (!AssertRunning()) return;
+            UsingScreenShot = new HashSet<string>();
             beforeTime = DateTime.Now - TimeSpan.FromSeconds(1);
             IsForBrowserUp = new EventWaitHandle(false, EventResetMode.ManualReset);
             if (IsRunning == true)

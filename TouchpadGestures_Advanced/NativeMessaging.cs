@@ -15,6 +15,7 @@ namespace TouchpadGestures_Advanced
         public static SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
         public static string DeserializingNMC_Key = "";
         public static NMC_Manager ActiveNMC = null;
+        private static Thread TimerThread;
 
         public static Dictionary<string, NMC_Manager> NMCs = new Dictionary<string, NMC_Manager>(); // Key, NMC_Manager
 
@@ -37,24 +38,11 @@ namespace TouchpadGestures_Advanced
                 }
             }
         }
-        internal static async Task DeleteNMC(NMC_Manager nmc)
+        internal static void DeleteNMC(NMC_Manager nmc)
         {
             if (nmc.IsRunning == false)
             {
                 nmc.Watcher.Dispose();
-                switch (nmc.WindowState)
-                {
-                    case 0:
-                        break;
-                    case 1:
-                        nmc.IsForBrowserUp.WaitOne();
-                        goto case 10;
-                    case 10:
-                        nmc.ForBrowserWindow.Dispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
-                        break;
-                    default:
-                        break;
-                }
                 int NMC_Running = (int)App.Registry_TGA_NMC.GetValue("NMC_Running");
                 if (((1 << nmc.ID) & NMC_Running) != 0)
                 {
@@ -64,6 +52,19 @@ namespace TouchpadGestures_Advanced
                 App.Registry_TGA_NMC.SetValue("NMC" + nmc.ID + "_Key", "", RegistryValueKind.String);
                 App.Registry_TGA_NMC.SetValue("NMC" + nmc.ID + "_PID", 0, RegistryValueKind.DWord);
                 _ = Task.Run(() => {
+                    switch (nmc.WindowState)
+                    {
+                        case 0:
+                            break;
+                        case 1:
+                            nmc.IsForBrowserUp.WaitOne();
+                            goto case 10;
+                        case 10:
+                            nmc.ForBrowserWindow.Dispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
+                            break;
+                        default:
+                            break;
+                    }
                     Semaphore.Wait();
                     if (ActiveNMC == nmc)
                     {
@@ -97,14 +98,20 @@ namespace TouchpadGestures_Advanced
                 }
             }
         }
-        public static async void Timer()
+        public static void Timer()
         {
-            while (true)
+            TimerThread = new Thread(() =>
             {
-                ScanNMC();
-                DeleteNMC_Directories();
-                await Task.Delay(60 * 1000);
-            }
+                while (true)
+                {
+                    ScanNMC();
+                    DeleteNMC_Directories();
+                    Thread.Sleep(60 * 1000);
+                }
+            });
+            TimerThread.IsBackground = true;
+            TimerThread.Start();
+
         }
     }
 }

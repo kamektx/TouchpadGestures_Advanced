@@ -50,16 +50,18 @@ namespace TouchpadGestures_Advanced
             ReadMyDispatcherSettings(applicationPath.ToString());
         }
 
-        private static async Task ReadMyDispatcherSettings(string applicationPath)
+        private static void ReadMyDispatcherSettings(string applicationPath)
         {
             string applicationName = Path.GetFileName(applicationPath);
             if (App.DispatcherNow.ShouldMakeNewMyDispatcher(applicationName))
             {
                 Debug.WriteLine($"Awaiting DispatcherSemaphore: {applicationName}");
-                await App.DispatcherSemaphore.WaitAsync();
-                Debug.WriteLine($"DispatcherNow is changed: {applicationName}");
-                App.DispatcherNow = new MyDispatcher(applicationName);
-                App.DispatcherSemaphore.Release();
+                _ = Task.Run(() => {
+                    App.DispatcherSemaphore.Wait();
+                    Debug.WriteLine($"DispatcherNow is changed: {applicationName}");
+                    App.DispatcherNow = new MyDispatcher(applicationName);
+                    App.DispatcherSemaphore.Release();
+                });
             }
             Status.ForegroundApplication = applicationName;
         }

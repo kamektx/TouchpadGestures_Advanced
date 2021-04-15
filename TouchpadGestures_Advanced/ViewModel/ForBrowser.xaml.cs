@@ -43,6 +43,8 @@ namespace TouchpadGestures_Advanced
         public void Refresh()
         {
             MyNMC.MySemaphore.Wait();
+            // This method is executed in an identical thread, 
+            // so this shouldn't invoke deadlock.
             MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(0, 0);
             var s = MyNMC.SendingObject;
             WrapperSP.Children.Clear();
@@ -219,7 +221,6 @@ namespace TouchpadGestures_Advanced
 
         public void MakeVisible()
         {
-            Opacity = 1.0;
             //Visibility = Visibility.Visible;
             ColumnIndexVsHorizontalBoundary.Clear();
             ColumnIndexVsRowIndexVsVerticalBoundary.Clear();
@@ -264,6 +265,7 @@ namespace TouchpadGestures_Advanced
                     this.Left = leftTemp;
                 }
             });
+            Opacity = 1.0;
         }
 
         public void MakeHidden()
@@ -298,7 +300,7 @@ namespace TouchpadGestures_Advanced
         public ForBrowser(NMC_Manager nMC_Magager, Direction direction) : base()
         {
             Visibility = Visibility.Visible;
-            Opacity = 0.0;
+            MakeHidden();
             MyDirection = direction;
             SPs = new List<StackPanel>();
             ColumnIndexVsHorizontalBoundary = new List<double>();

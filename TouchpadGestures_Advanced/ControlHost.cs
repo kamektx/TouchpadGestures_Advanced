@@ -6,6 +6,8 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Security.RightsManagement;
 using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
 
 #endregion
 

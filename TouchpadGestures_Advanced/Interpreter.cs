@@ -169,18 +169,21 @@ namespace TouchpadGestures_Advanced
         }
         internal static void InitJson(string argJson)
         {
+            // UI Thread
             var initData = JsonConvert.DeserializeObject<InputDataForInit>(argJson);
             InputData.XLogicalMax = initData.XLogicalMax;
             InputData.YLogicalMax = initData.YLogicalMax;
         }
         internal static void SetJson(string argJson)
         {
+            // UI Thread
             _InputData = JsonConvert.DeserializeObject<InputData>(argJson);
             _InputData.RemoveNotFinger();
             Interpret();
         }
         internal static void Interpret()
         {
+            // UI Thread
             if (InterpretableAsThreeFingers == false)
             {
                 if (Condition != Conditions.idle)
@@ -226,7 +229,10 @@ namespace TouchpadGestures_Advanced
                 }
                 else if (Condition == Conditions.idle)
                 {
-                    App.DispatcherSemaphore.Wait();
+                    App.DispatcherSemaphore.Wait(); // UI Thread Waiting!! Watch out!!
+                    // ✓ This Semaphore should be released immediately from other threads.
+                    // ✓ This Thread doesn't wait for this Semaphore anywhere but here. 
+                    // ✓ This Semaphore will be released by THIS thread, and for sure.  
                     Condition = Conditions.distinguish;
                 }
             }

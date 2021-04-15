@@ -102,8 +102,6 @@ namespace TouchpadGestures_Advanced
 
             myNotifyIcon = new MyNotifyIcon();
 
-            Events.RunEventLoopForNMC_Created();
-
             base.OnStartup(e);
         }
 
