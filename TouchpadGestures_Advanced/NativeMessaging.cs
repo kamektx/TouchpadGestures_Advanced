@@ -42,7 +42,7 @@ namespace TouchpadGestures_Advanced
         {
             if (nmc.IsRunning == false)
             {
-                nmc.Watcher.Dispose();
+                nmc.Watcher?.Dispose();
                 int NMC_Running = (int)App.Registry_TGA_NMC.GetValue("NMC_Running");
                 if (((1 << nmc.ID) & NMC_Running) != 0)
                 {
