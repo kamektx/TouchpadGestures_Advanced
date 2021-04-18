@@ -142,6 +142,19 @@ namespace TouchpadGestures_Advanced
             {
                 this.Semaphore.Wait();
                 if (IsActive) throw new Exception("Don't call FirstStroke() twice before calling Inactivate().");
+                //if (!IsDispatcherInited)
+                //{
+                //    var dispatcherSource = new TaskCompletionSource<Dispatcher>();
+                //    var thread = new Thread(new ThreadStart(() => {
+                //        dispatcherSource.SetResult(Dispatcher.CurrentDispatcher);
+                //        Dispatcher.Run();
+                //    }));
+                //    thread.Start();
+                //    MyDispatcher = dispatcherSource.Task.Result;
+                //    Dispatcher.CurrentDispatcher.ShutdownStarted += (s, e) =>
+                //      MyDispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
+                //    IsDispatcherInited = true;
+                //}
                 FirstDirection = direction;
                 NativeMessaging.ActiveNMC?.AssertRunning();
                 MyNMC = NativeMessaging.ActiveNMC;

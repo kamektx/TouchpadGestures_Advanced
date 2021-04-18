@@ -29,6 +29,7 @@ namespace TouchpadGestures_Advanced
         public static SemaphoreSlim DispatcherSemaphore = new SemaphoreSlim(1, 1);
         public static MyNotifyIcon myNotifyIcon;
         public static Settings Settings;
+        public static MainWindow MainWindow01;
 
         private static void Registry_TGA_NMC_Values_Init()
         {
@@ -120,8 +121,8 @@ namespace TouchpadGestures_Advanced
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
-            var _MainWindow = new MainWindow();
-            _MainWindow.Show();
+            MainWindow01 = new MainWindow();
+            MainWindow01.Show();
         }
     }
 }

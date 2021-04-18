@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Drawing;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -33,7 +34,7 @@ namespace TouchpadGestures_Advanced
             public bool IsFinger { get; set; }
             public double NX //Normalized X
             {
-                get { return X * 2784d / InputData.YLogicalMax; }  
+                get { return X * 2784d / InputData.YLogicalMax; }
             }
             public double NY //Normalized Y
             {
@@ -124,12 +125,12 @@ namespace TouchpadGestures_Advanced
         internal static InputData _OldInputData;
         internal static PointD _Size = new PointD(0, 0);
         internal static Conditions Condition = Conditions.idle;
-        internal static bool InterpretableAsThreeFingers 
+        internal static bool InterpretableAsThreeFingers
         {
             get
             {
-                return 
-                    ((Condition == Conditions.active || Condition == Conditions.ignore) && ((_InputData.ContactCount == 2 && _InputData.IsOff == false)|| (_InputData.ContactCount == 3 && _InputData.IsOffMoreThan2 == false)))
+                return
+                    ((Condition == Conditions.active || Condition == Conditions.ignore) && ((_InputData.ContactCount == 2 && _InputData.IsOff == false) || (_InputData.ContactCount == 3 && _InputData.IsOffMoreThan2 == false)))
                     ||
                     (_InputData.ContactCount == 3 && _InputData.IsOff == false);
             }
@@ -137,7 +138,7 @@ namespace TouchpadGestures_Advanced
 
         internal static bool GetNewSize(ref PointD size, InputData inputData, InputData oldInputData)
         {
-            if((inputData.ContactCount == 3 && inputData.IsOff == false) && (oldInputData.ContactCount == 3 && oldInputData.IsOff == false))
+            if ((inputData.ContactCount == 3 && inputData.IsOff == false) && (oldInputData.ContactCount == 3 && oldInputData.IsOff == false))
             {
                 size += (inputData.Mean - oldInputData.Mean) * (Condition == Conditions.ignore ? App.Settings.IgnoreMagnification : 1d);
             }
@@ -191,7 +192,12 @@ namespace TouchpadGestures_Advanced
                     _Size = new PointD(0, 0);
                     App.DispatcherNow.Inactivate();
                     Condition = Conditions.idle;
-                    App.DispatcherSemaphore.Release();
+                    Task.Run(() =>
+                    {
+                        Thread.Sleep(20);
+                        App.DispatcherSemaphore.Release();
+                        ForegroundWindowWatcher.GetForegroundAppNameAndUpdateDispatcherNow();
+                    });
                 }
             }
             else
@@ -210,7 +216,7 @@ namespace TouchpadGestures_Advanced
                         {
                             if (_Size.IsDirection(item))
                             {
-                                if(App.DispatcherNow.WhichActionType(item) == ActionType.dontHandle)
+                                if (App.DispatcherNow.WhichActionType(item) == ActionType.dontHandle)
                                 {
                                     Condition = Conditions.dontHnadle;
                                     break;
@@ -232,7 +238,7 @@ namespace TouchpadGestures_Advanced
                     App.DispatcherSemaphore.Wait(); // UI Thread Waiting!! Watch out!!
                     // ✓ This Semaphore should be released immediately from other threads.
                     // ✓ This Thread doesn't wait for this Semaphore anywhere but here. 
-                    // ✓ This Semaphore will be released by THIS thread, and for sure.  
+                    // ✓ This Semaphore will be released for sure.  
                     Condition = Conditions.distinguish;
                 }
             }

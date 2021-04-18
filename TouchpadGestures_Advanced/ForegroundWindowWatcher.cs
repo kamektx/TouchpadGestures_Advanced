@@ -49,21 +49,36 @@ namespace TouchpadGestures_Advanced
 
             ReadMyDispatcherSettings(applicationPath.ToString());
         }
+        public static void GetForegroundAppNameAndUpdateDispatcherNow()
+        {
+            IntPtr hwnd = GetForegroundWindow();
+            var applicationPath = new StringBuilder(260);
+            uint dwProcId;
+
+            GetWindowThreadProcessId(hwnd, out dwProcId);
+            IntPtr hProc = OpenProcess(ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VirtualMemoryRead, false, dwProcId);
+            GetModuleFileNameEx(hProc, IntPtr.Zero, applicationPath, 260);
+            CloseHandle(hProc);
+
+            ReadMyDispatcherSettings(applicationPath.ToString());
+        }
 
         private static void ReadMyDispatcherSettings(string applicationPath)
         {
             string applicationName = Path.GetFileName(applicationPath);
-            if (App.DispatcherNow.ShouldMakeNewMyDispatcher(applicationName))
+            Debug.WriteLine($"ApplicationName is now: {applicationName}");
+            _ = Task.Run(() =>
             {
-                Debug.WriteLine($"Awaiting DispatcherSemaphore: {applicationName}");
-                _ = Task.Run(() => {
-                    App.DispatcherSemaphore.Wait();
+                bool result = App.DispatcherSemaphore.Wait(0);
+                if (!result) return;
+                if (App.DispatcherNow.ShouldMakeNewMyDispatcher(applicationName))
+                {
                     Debug.WriteLine($"DispatcherNow is changed: {applicationName}");
                     App.DispatcherNow = new MyDispatcher(applicationName);
-                    App.DispatcherSemaphore.Release();
-                });
-            }
-            Status.ForegroundApplication = applicationName;
+                    Status.ForegroundApplication = applicationName;
+                }
+                App.DispatcherSemaphore.Release();
+            });
         }
 
         private static IntPtr windowEventHook;
@@ -76,6 +91,8 @@ namespace TouchpadGestures_Advanced
         private static extern unsafe int UnhookWinEvent(IntPtr hWinEventHook);
         [DllImport("user32.dll", SetLastError = true)]
         private static extern unsafe uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+        [DllImport("user32.dll")]
+        public static extern unsafe IntPtr GetForegroundWindow();
         [Flags]
         private enum ProcessAccessFlags : uint
         {

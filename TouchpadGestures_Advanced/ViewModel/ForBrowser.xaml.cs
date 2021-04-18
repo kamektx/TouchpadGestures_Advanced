@@ -43,8 +43,6 @@ namespace TouchpadGestures_Advanced
         public void Refresh()
         {
             MyNMC.MySemaphore.Wait();
-            // This method is executed in an identical thread, 
-            // so this shouldn't invoke deadlock.
             MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(0, 0);
             var s = MyNMC.SendingObject;
             WrapperSP.Children.Clear();

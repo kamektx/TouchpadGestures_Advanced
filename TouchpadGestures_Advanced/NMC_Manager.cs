@@ -28,6 +28,7 @@ namespace TouchpadGestures_Advanced
         public EventWaitHandle IsForBrowserUp;
         public ForBrowser ForBrowserWindow;
         public Thread WindowThread;
+        public Thread ThreadToGetSemaphoreInNativeMessagingAction;
         public int WindowState;
         public HashSet<string> UsingScreenShot;
 
@@ -51,29 +52,36 @@ namespace TouchpadGestures_Advanced
                 return temp;
             }
         }
-        public async Task DeleteOldScreenShotAsync()
+        public void DeleteOldScreenShot()
         {
-            await Task.Run(() =>
+            Task.Run(() =>
             {
-                var files = Directory.GetFiles(MyAppData + @"\screenshot");
-                Thread.Sleep(2000);
-                MySemaphore.Wait();
-                foreach (var file in files)
+                try
                 {
-                    var fileInfo = new FileInfo(file);
-                    if (!UsingScreenShot.Contains(fileInfo.Name))
+                    var files = Directory.GetFiles(MyAppData + @"\screenshot");
+                    Thread.Sleep(2000);
+                    MySemaphore.Wait();
+                    foreach (var file in files)
                     {
-                        try
+                        var fileInfo = new FileInfo(file);
+                        if (!UsingScreenShot.Contains(fileInfo.Name))
                         {
-                            File.Delete(file);
-                        }
-                        catch (Exception)
-                        {
+                            try
+                            {
+                                File.Delete(file);
+                            }
+                            catch (Exception)
+                            {
 
+                            }
                         }
                     }
+                    MySemaphore.Release();
                 }
-                MySemaphore.Release();
+                catch
+                {
+
+                }
             });
         }
         public bool AssertRunning()
@@ -100,6 +108,30 @@ namespace TouchpadGestures_Advanced
             }
             MySemaphore.Release();
             return IsRunning;
+        }
+        public void AssertRunningWithoutWaiting()
+        {
+            _ = Task.Run(() => {
+                MySemaphore.Wait();
+                IsRunning = true;
+                try
+                {
+                    Process _NMC = Process.GetProcessById(PID);
+                    if (_NMC.HasExited || _NMC.ProcessName != "TGA_NativeMessaging_Cliant")
+                    {
+                        IsRunning = false;
+                    }
+                }
+                catch (Exception)
+                {
+                    IsRunning = false;
+                }
+                if (IsRunning == false)
+                {
+                    NativeMessaging.DeleteNMC(this);
+                }
+                MySemaphore.Release();
+            });
         }
         public async Task ReadJSON()
         {
