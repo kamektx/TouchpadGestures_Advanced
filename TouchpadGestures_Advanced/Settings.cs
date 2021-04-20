@@ -126,7 +126,7 @@ namespace TouchpadGestures_Advanced
         public static int MinimumHorizontalPadding = 40;
         //public static int MinimumVerticalPadding = 30;
         public static int ForBrowserMaxWidth = PrimaryScreenWidth - MinimumHorizontalPadding * 2;
-        public static int MaxRowsOfTabWithImage = ForBrowserMaxHeight / 165;
+        public static int MaxRowsOfTabWithImage = ForBrowserMaxHeight / 190;
         public static int WidthForRemainingColumns = 120;
     }
 }

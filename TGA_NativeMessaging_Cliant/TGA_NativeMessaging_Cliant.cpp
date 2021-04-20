@@ -19,6 +19,38 @@ using namespace std;
 using namespace nlohmann;
 using namespace Magick;
 
+bool CaptureWindow(HWND hwnd, const std::function<void(const void* data, int width, int height)>& callback)
+{
+    RECT rect{};
+    ::GetWindowRect(hwnd, &rect);
+    int width = rect.right - rect.left;
+    int height = rect.bottom - rect.top;
+
+    BITMAPINFO info{};
+    info.bmiHeader.biSize = sizeof(info.bmiHeader);
+    info.bmiHeader.biWidth = width;
+    info.bmiHeader.biHeight = height;
+    info.bmiHeader.biPlanes = 1;
+    info.bmiHeader.biBitCount = 32;
+    info.bmiHeader.biCompression = BI_RGB;
+    info.bmiHeader.biSizeImage = width * height * 4;
+
+    bool ret = false;
+    HDC hscreen = ::GetDC(hwnd);
+    HDC hdc = ::CreateCompatibleDC(hscreen);
+    void* data = nullptr;
+    if (HBITMAP hbmp = ::CreateDIBSection(hdc, &info, DIB_RGB_COLORS, &data, NULL, NULL)) {
+        ::SelectObject(hdc, hbmp);
+        ::PrintWindow(hwnd, hdc, PW_RENDERFULLCONTENT);
+        callback(data, width, height);
+        ::DeleteObject(hbmp);
+        ret = true;
+    }
+    ::DeleteDC(hdc);
+    ::ReleaseDC(hwnd, hscreen);
+    return ret;
+}
+
 int main(int argc, char* argv[])
 {
     ofstream logfile(app.MyAppData + "\\log2.txt", ios::app);
@@ -187,6 +219,51 @@ int main(int argc, char* argv[])
                 ofstream file(app.MyAppData + "\\sending_object.json", ios::binary);
                 file << json1.dump();
                 file.close();
+            }
+            else if (jsonType == "CannotCaptureScreenShot") {
+                wstring title = utf8_decode(json1.at("Title").get<string>());
+                wstring seachString = title.length() > 30 ? wstring(title, 0, 30) : title;
+                string fileName = json1.at("FileName").get<string>();
+                auto checkTheWindowText = [seachString](HWND hwnd) -> bool {
+                    constexpr int nMaxCount = 260;
+                    WCHAR windowTextWC[nMaxCount];
+                    GetWindowTextW(hwnd, windowTextWC, nMaxCount);
+                    wstring windowText(windowTextWC);
+                    if (windowText.find(seachString) != wstring::npos)
+                    {
+                        return true;
+                    }
+                    return false;
+                };
+                HWND true_hwnd = NULL;
+                // first, check the foreground window...
+                HWND hwnd_now;
+                hwnd_now = GetForegroundWindow();
+                if (checkTheWindowText(hwnd_now))
+                {
+                    true_hwnd = hwnd_now;
+                }
+                else {
+                    // Check every window...
+                    hwnd_now = GetTopWindow(NULL);
+                    while (hwnd_now != NULL) {
+                        if (checkTheWindowText(hwnd_now))
+                        {
+                            true_hwnd = hwnd_now;
+                            break;
+                        }
+                        hwnd_now = GetWindow(hwnd_now, GW_HWNDNEXT);
+                    }
+                }
+                if (true_hwnd != NULL) {
+                    CaptureWindow(true_hwnd, [fileName](const void* data, int width, int height) {
+                        Image screenshot;
+                        screenshot.read(width, height, "BGRA", CharPixel, data);
+                        screenshot.resize("1000x1000");
+                        screenshot.flip();
+                        screenshot.write(app.MyAppData + "\\screenshot\\" + fileName);
+                    });
+                }
             }
             count++;
             json forSending;

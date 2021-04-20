@@ -92,7 +92,7 @@ namespace TouchpadGestures_Advanced
                     else
                     {
                         NMCs[key].DeleteOldScreenShot();
-                        NMCs[key].AssertRunningWithoutWaiting();
+                        NMCs[key].CheckRunningWithoutWaiting();
                     }
                     Semaphore.Release();
                 }

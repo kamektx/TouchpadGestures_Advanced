@@ -84,7 +84,7 @@ namespace TouchpadGestures_Advanced
                 }
             });
         }
-        public bool AssertRunning()
+        public bool CheckRunning()
         {
             // Only this method can call MySemaphore.Wait() outside of Task.Run().
             // In other method, CALL MySemaphore.Wait() IN Task.Run()!!
@@ -109,7 +109,7 @@ namespace TouchpadGestures_Advanced
             MySemaphore.Release();
             return IsRunning;
         }
-        public void AssertRunningWithoutWaiting()
+        public void CheckRunningWithoutWaiting()
         {
             _ = Task.Run(() => {
                 MySemaphore.Wait();
@@ -217,7 +217,7 @@ namespace TouchpadGestures_Advanced
             PID = (int)App.Registry_TGA_NMC.GetValue("NMC" + ID + "_PID");
             MyAppData = App.NMC_AppData + @"\" + Key;
             IsRunning = true;
-            if (!AssertRunning()) return;
+            if (!CheckRunning()) return;
             UsingScreenShot = new HashSet<string>();
             beforeTime = DateTime.Now - TimeSpan.FromSeconds(1);
             IsForBrowserUp = new EventWaitHandle(false, EventResetMode.ManualReset);

@@ -127,6 +127,9 @@
       <AdditionalLibraryDirectories>$(ProjectDir)ImageMagickDll\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>CORE_RL_MagickCore_.lib;CORE_RL_MagickWand_.lib;CORE_RL_Magick++_.lib;wsock32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

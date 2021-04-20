@@ -156,7 +156,7 @@ namespace TouchpadGestures_Advanced
                 //    IsDispatcherInited = true;
                 //}
                 FirstDirection = direction;
-                NativeMessaging.ActiveNMC?.AssertRunning();
+                NativeMessaging.ActiveNMC?.CheckRunning();
                 MyNMC = NativeMessaging.ActiveNMC;
                 if (MyNMC != null && MyNMC.IsActive)
                 {
