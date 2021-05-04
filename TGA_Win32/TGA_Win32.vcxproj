@@ -121,6 +121,9 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>hid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>powershell -File $(ProjectDir)preBuildEvent.ps1</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -160,6 +163,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -172,6 +176,9 @@
     </ClCompile>
     <ClCompile Include="RegisterRawInput.cpp" />
     <ClCompile Include="SendDirectKeyInput.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TGA_Win32.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

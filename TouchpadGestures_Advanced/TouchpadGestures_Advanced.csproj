@@ -8,7 +8,7 @@
     <RootNamespace>TouchpadGestures_Advanced</RootNamespace>
     <AssemblyName>TouchpadGestures_Advanced</AssemblyName>
     <ApplicationIcon>Icon\TGA_icon.ico</ApplicationIcon>
-    <Version>0.1.14</Version>
+    <Version>0.2.25</Version>
     <Authors>kamektx</Authors>
   </PropertyGroup>
 
@@ -68,4 +68,32 @@
     <Folder Include="Components\" />
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="powershell -File $(ProjectDir)preBuildEvent.ps1" />
+  </Target>
+
 </Project>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

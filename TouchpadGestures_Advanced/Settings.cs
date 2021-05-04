@@ -115,6 +115,12 @@ namespace TouchpadGestures_Advanced
             get { return _ThresholdAngle; }
             set { _ThresholdAngle = value; }
         }
+        private int _MinimumTabWithImageHeight = 190;
+        public int MinimumTabWithImageHeight
+        {
+            get { return _MinimumTabWithImageHeight; }
+            set { _MinimumTabWithImageHeight = value; }
+        }
     }
 
     public static class Status
@@ -126,7 +132,9 @@ namespace TouchpadGestures_Advanced
         public static int MinimumHorizontalPadding = 40;
         //public static int MinimumVerticalPadding = 30;
         public static int ForBrowserMaxWidth = PrimaryScreenWidth - MinimumHorizontalPadding * 2;
-        public static int MaxRowsOfTabWithImage = ForBrowserMaxHeight / 190;
+        public static int MaxRowsOfTabWithImage {
+            get { return ForBrowserMaxHeight / App.Settings.MinimumTabWithImageHeight; }
+        }
         public static int WidthForRemainingColumns = 120;
     }
 }

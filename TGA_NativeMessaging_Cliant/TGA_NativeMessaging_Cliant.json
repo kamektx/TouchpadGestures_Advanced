@@ -1,9 +1,0 @@
-{
-  "name": "TGA_NativeMessaging_Cliant",
-  "description": "NativeMessaging Cliant for TouchpadGestures Advanced.",
-  "path": "Release/TGA_NativeMessaging_Cliant.exe",
-  "type": "stdio",
-  "allowed_extensions": [
-    "ping_pong@example.org"
-  ]
-}

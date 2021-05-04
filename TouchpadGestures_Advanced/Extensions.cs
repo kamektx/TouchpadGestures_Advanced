@@ -25,7 +25,7 @@ namespace TouchpadGestures_Advanced
                         bi.UriSource = preferred;
                         bi.EndInit();
                     }
-                    catch (IOException)
+                    catch (Exception)
                     {
                         continue;
                     }

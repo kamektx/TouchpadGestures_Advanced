@@ -14,10 +14,24 @@
 #include "MyProcess.h"
 
 #include "Magick++.h"
+#include "curl/curl.h"
 
 using namespace std;
 using namespace nlohmann;
 using namespace Magick;
+
+size_t callbackCurlWriteFile(void* ptr, size_t size, size_t nmemb, FILE* stream)
+{
+    size_t written = fwrite(ptr, size, nmemb, stream);
+    return written;
+}
+
+size_t callbackCurlWriteString(char* ptr, size_t size, size_t nmemb, string* stream)
+{
+    size_t dataLength = size * nmemb;
+    stream->append(ptr, dataLength);
+    return dataLength;
+}
 
 bool CaptureWindow(HWND hwnd, const std::function<void(const void* data, int width, int height)>& callback)
 {
@@ -51,10 +65,44 @@ bool CaptureWindow(HWND hwnd, const std::function<void(const void* data, int wid
     return ret;
 }
 
+void convertFavicon(string& data, string name, string format) {
+    Image favicon;
+    if (format == "svg") {
+        favicon.size("64x64");
+        favicon.backgroundColor("none");
+        favicon.read(app.MyAppData + "\\favicon\\raw\\" + name + "." + format);
+    }
+    else if (format == "ico") {
+        int numberOfImages = data.at(4);
+        int maxWidth = 0;
+        int maxWidthIndex = 0;
+        for (int i = 0; i < numberOfImages; i++)
+        {
+            int width = data.at(6 + 16 * i);
+            if (width == 0) width = 256;
+            if (width > maxWidth) {
+                maxWidth = width;
+                maxWidthIndex = i;
+            }
+        } // Get an image which has the biggest width in the ico file.
+        favicon.read(app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "[" + to_string(maxWidthIndex) + "]");
+        favicon.backgroundColor("none");
+        favicon.resize("64x64");
+    }
+    else {
+        favicon.read(app.MyAppData + "\\favicon\\raw\\" + name + "." + format);
+        favicon.backgroundColor("none");
+        favicon.resize("64x64");
+    }
+    favicon.write(app.MyAppData + "\\favicon\\png\\" + name + ".png");
+    filesystem::remove(app.MyAppData + "\\favicon\\raw\\" + name + "." + format);
+}
+
 int main(int argc, char* argv[])
 {
     ofstream logfile(app.MyAppData + "\\log2.txt", ios::app);
     InitializeMagick(argv[0]);
+    curl_global_init(CURL_GLOBAL_WIN32 | CURL_GLOBAL_SSL);
 
     try {
         MyProcess TGA(app.TGA_AppData + "\\bin\\TGA\\TouchpadGestures_Advanced.exe", "");
@@ -113,11 +161,10 @@ int main(int argc, char* argv[])
 
         SetEvent(events.NMC_Created);
 
-        string str;
-        stringstream ss;
         int count = 0;
         int countTemp = 0;
-        auto thread2 = thread([&] {
+
+        auto thread2 = thread([&countTemp] {
             while (true) {
                 int maxloop = 3000;
                 this_thread::sleep_for(chrono::milliseconds(5000));
@@ -129,11 +176,11 @@ int main(int argc, char* argv[])
             }
             return;
             });
+
         while (true) {
             countTemp++;
             BYTE buff[4];
             unsigned int length = 0;
-            this_thread::sleep_for(chrono::milliseconds(2));
             int dataSizeLength = fread(buff, sizeof(char), 4, stdin);
             if (dataSizeLength != 4) {
                 cerr << "dataSizeLength length:" << dataSizeLength << endl;
@@ -164,6 +211,9 @@ int main(int argc, char* argv[])
             json json0 = json::parse(buff2);
             json json1 = json0.at("Content");
             string jsonType = json1.at("Type").get<string>();
+
+
+
             if (jsonType == "ScreenShot")
             {
                 string data = json1.at("Data").get<string>();
@@ -179,41 +229,72 @@ int main(int argc, char* argv[])
                 string format;
                 string name = json1.at("Name").get<string>();
                 string result = base64Decode(data, format);
-                logfile << "format: " << format << endl;
-                logfile << flush;
                 ofstream file(app.MyAppData + "\\favicon\\raw\\" + name + "." + format, ios::binary);
                 file.write(result.c_str(), result.length());
                 file.close();
-                Image favicon;
-                if (format == "svg") {
-                    favicon.size("64x64");
-                    favicon.backgroundColor("none");
-                    favicon.read(app.MyAppData + "\\favicon\\raw\\" + name + "." + format);
-                }
-                else if (format == "ico") {
-                    int numberOfImages = result.at(4);
-                    int maxWidth = 0;
-                    int maxWidthIndex = 0;
-                    for (int i = 0; i < numberOfImages; i++)
+
+                convertFavicon(result, name, format);
+
+            }
+            else if (jsonType == "FaviconUrl") {
+                auto curlAsync = async(launch::async, [json1]
                     {
-                        int width = result.at(6 + 16 * i);
-                        if (width == 0) width = 256;
-                        if (width > maxWidth) {
-                            maxWidth = width;
-                            maxWidthIndex = i;
+                        //cerr << "FaviconUrl processing..." << endl;
+                        string url = json1.at("Url").get<string>();
+                        string format;
+                        string name = json1.at("Name").get<string>();
+                        CURL* curl;
+                        CURLcode ret;
+                        string chunk;
+                        curl = curl_easy_init();
+                        //cerr << "Curl init is OK." << endl;
+                        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackCurlWriteString);
+                        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+                        //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+                        curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, 2000);
+                        curl_easy_setopt(curl, CURLOPT_URL, url);
+                        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
+                        //cerr << "Curl setopt is OK" << endl;
+                        ret = curl_easy_perform(curl);
+                        //cerr << "Curl perform is OK." << endl;
+                        curl_easy_cleanup(curl);
+                        //cerr << "Curl cleanup is OK." << endl;
+
+                        if (ret != CURLE_OK) {
+                            cerr << "Curl Error. ErrorCode is " << ret << endl;
+                            return -1;
                         }
-                    } // Get an image which has the biggest width in the ico file.
-                    favicon.read(app.MyAppData + "\\favicon\\raw\\" + name + "." + format + "[" + to_string(maxWidthIndex) + "]");
-                    favicon.backgroundColor("none");
-                    favicon.resize("64x64");
-                }
-                else {
-                    favicon.read(app.MyAppData + "\\favicon\\raw\\" + name + "." + format);
-                    favicon.backgroundColor("none");
-                    favicon.resize("64x64");
-                }
-                favicon.write(app.MyAppData + "\\favicon\\png\\" + name + ".png");
-                filesystem::remove(app.MyAppData + "\\favicon\\raw\\" + name + "." + format);
+                        //cerr << "Curl OK" << endl;
+
+                        if (chunk.starts_with("\xFF\xD8")) {
+                            format = "jpg";
+                        }
+                        else if (chunk.starts_with("\x89\x50\x4e\x47"))
+                        {
+                            format = "png";
+                        }
+                        else if (chunk.starts_with("\x47\x49\x46\x38"))
+                        {
+                            format = "gif";
+                        }
+                        else if (chunk.starts_with("\x00\x00\x01\x00") || chunk.starts_with("\x00\x00\x02\x00"))
+                        {
+                            format = "ico";
+                        }
+                        else
+                        {
+                            format = "svg";
+                        }
+
+                        ofstream file(app.MyAppData + "\\favicon\\raw\\" + name + "." + format, ios::binary);
+                        file.write(chunk.c_str(), chunk.length());
+                        file.close();
+
+                        convertFavicon(chunk, name, format);
+                        //cerr << "FaviconUrl Process is over." << endl;
+                        return 0;
+                    }
+                );
             }
             else if (jsonType == "SendingObject") {
                 ofstream file(app.MyAppData + "\\sending_object.json", ios::binary);
@@ -262,21 +343,21 @@ int main(int argc, char* argv[])
                         screenshot.resize("1000x1000");
                         screenshot.flip();
                         screenshot.write(app.MyAppData + "\\screenshot\\" + fileName);
-                    });
+                        });
                 }
             }
             count++;
             json forSending;
-            forSending["Command"] = u8"Received";
+            forSending["Command"] = "Received";
             forSending["ReceivedIndex"] = json0.at("SendingIndex").get<int>();
             mySend(forSending.dump());
-            free(buff2);
+            ::free(buff2);
         }
     }
     catch (exception e) {
         cerr << e.what() << endl;
     }
     logfile.close();
-    this_thread::sleep_for(chrono::milliseconds(20*1000));
+    this_thread::sleep_for(chrono::milliseconds(20 * 1000));
     return 0;
 }

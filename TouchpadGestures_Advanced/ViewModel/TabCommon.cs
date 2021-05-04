@@ -17,9 +17,9 @@ namespace TouchpadGestures_Advanced
         public int ColumnIndex { get; set; }
         public int MyTabIndex;
         public int ColumnsIndex;
-        protected Uri DefaultImageSourceUri = new Uri(App.TGA_AppData + @"\Image\firefox.png");
-        public static Uri StaticImageSourceUri = new Uri(App.TGA_AppData + @"\Image\firefox.png");
-        protected Uri DefaultFaviconSourceUri = new Uri(App.TGA_AppData + @"\Icon\firefox.png");
+        protected Uri DefaultImageSourceUri = new Uri(App.TGA_AppData + @"\Image\default.png");
+        public static Uri StaticImageSourceUri = new Uri(App.TGA_AppData + @"\Image\default.png");
+        protected Uri DefaultFaviconSourceUri = new Uri(App.TGA_AppData + @"\Icon\globe.png");
         public TabCommon(NMC_Manager myNMC, SendingObject.MyWindow.MyTab myTab, StackPanel sp, StackPanel wrapperSP, ForBrowser forBrowser, int rowIndex, int columnIndex, int tabIndex, int columnsIndex)
         {
             this.MyNMC = myNMC;

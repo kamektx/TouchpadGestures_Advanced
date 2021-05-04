@@ -113,8 +113,6 @@ namespace TouchpadGestures_Advanced
                 Mutex.ReleaseMutex();
             }
             Mutex.Close();
-            Registry_TGA.Close();
-            Registry_TGA_NMC.Close();
 
             base.OnExit(e);
         }

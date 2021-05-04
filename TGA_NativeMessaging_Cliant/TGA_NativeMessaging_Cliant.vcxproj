@@ -115,7 +115,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)ImageMagickDll\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -125,11 +125,15 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)ImageMagickDll\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>CORE_RL_MagickCore_.lib;CORE_RL_MagickWand_.lib;CORE_RL_Magick++_.lib;wsock32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CORE_RL_MagickCore_.lib;CORE_RL_MagickWand_.lib;CORE_RL_Magick++_.lib;libcurl.lib;wsock32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
+    <PreBuildEvent>
+      <Command>powershell -File $(ProjectDir)preBuildEvent.ps1
+</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -174,6 +178,16 @@
     <ClInclude Include="App.h" />
     <ClInclude Include="Base32.h" />
     <ClInclude Include="Base64.h" />
+    <ClInclude Include="curl\curl.h" />
+    <ClInclude Include="curl\curlver.h" />
+    <ClInclude Include="curl\easy.h" />
+    <ClInclude Include="curl\mprintf.h" />
+    <ClInclude Include="curl\multi.h" />
+    <ClInclude Include="curl\options.h" />
+    <ClInclude Include="curl\stdcheaders.h" />
+    <ClInclude Include="curl\system.h" />
+    <ClInclude Include="curl\typecheck-gcc.h" />
+    <ClInclude Include="curl\urlapi.h" />
     <ClInclude Include="Events.h" />
     <ClInclude Include="FileWatch.hpp" />
     <ClInclude Include="json.hpp" />
@@ -181,6 +195,10 @@
     <ClInclude Include="MyProcess.h" />
     <ClInclude Include="MyRegistry.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TGA_NativeMessaging_Cliant.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -594,3 +594,6 @@ $RECYCLE.BIN/
 !**/ImageMagickDll/lib/
 !**/ImageMagickDll/lib/*
 !**/ImageMagickDll/lib/*.lib
+!libcurl.lib
+!libcurl.dll
+!libcurl.exp
