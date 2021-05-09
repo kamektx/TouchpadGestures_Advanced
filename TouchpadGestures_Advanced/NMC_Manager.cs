@@ -45,6 +45,7 @@ namespace TouchpadGestures_Advanced
         {
             get
             {
+                if (SendingObject?.ChromiumOrGecko == null) return null;
                 switch (SendingObject.ChromiumOrGecko)
                 {
                     case "Chromium":
