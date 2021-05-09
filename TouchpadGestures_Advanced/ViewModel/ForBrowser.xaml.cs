@@ -42,6 +42,11 @@ namespace TouchpadGestures_Advanced
 
         public void Refresh()
         {
+            RefreshDirectionSpecified(MyDirection);
+        }
+
+        public void RefreshDirectionSpecified(Direction dir)
+        {
             MyNMC.MySemaphore.Wait();
             MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(0, 0);
             var s = MyNMC.SendingObject;
@@ -55,7 +60,7 @@ namespace TouchpadGestures_Advanced
                 ColumnsIndexVsActiveTabIndex.Clear();
                 ColumnIndexVsTabSize.Clear();
                 var w = s.Windows[s.ActiveWindowID.Value];
-                var arr = s.Arrangements[MyDirection];
+                var arr = s.Arrangements[dir];
                 int columnIndexTemp = 0;
                 foreach (var columnSetting in arr.Column)
                 {
@@ -268,7 +273,12 @@ namespace TouchpadGestures_Advanced
 
         public void MakeHidden()
         {
+            #if DEBUG
+            Opacity = 0.1;
+            #endif
+            #if RELEASE
             Opacity = 0.0;
+            #endif
             //Visibility = Visibility.Hidden;
         }
         public void OverFlowHandling(int columnIndex)

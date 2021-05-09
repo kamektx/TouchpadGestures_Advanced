@@ -5,6 +5,7 @@
 #define NOMINMAX
 
 #include <windows.h>
+#include <Psapi.h>
 #include <strsafe.h>
 #include <stdlib.h>
 #include <malloc.h>

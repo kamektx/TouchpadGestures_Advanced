@@ -37,6 +37,8 @@ namespace TouchpadGestures_Advanced
         [JsonConverter(typeof(MyWindowsConverter))]
         public Dictionary<int, MyWindow> Windows { get; set; }
         public int? ActiveWindowID { get; set; }
+        public string ChromiumOrGecko { get; set; }
+        public string BrowserName { get; set; }
 
         public class Arrangements_
         {

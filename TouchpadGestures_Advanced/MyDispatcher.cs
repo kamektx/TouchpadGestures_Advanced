@@ -30,6 +30,7 @@ namespace TouchpadGestures_Advanced
     {
         private MyDispatcherData Data;
         private bool IsDefault;
+        public string ApplicationName { get; private set; }
 
         public Direction FirstDirection = Direction.down;
         public bool IsActive = false;
@@ -147,13 +148,14 @@ namespace TouchpadGestures_Advanced
             }
         }
 
-        public MyDispatcher(string str)
+        public MyDispatcher(string applicationName)
         {
             string appSettingJSON = null;
             string settingPath = null;
-            if (str != "default" && File.Exists(App.TGA_AppData + @"\SettingsForActiveApp\" + str + @".json"))
+            ApplicationName = applicationName;
+            if (applicationName != "default" && File.Exists(App.TGA_AppData + @"\SettingsForActiveApp\" + applicationName + @".json"))
             {
-                settingPath = App.TGA_AppData + @"\SettingsForActiveApp\" + str + @".json";
+                settingPath = App.TGA_AppData + @"\SettingsForActiveApp\" + applicationName + @".json";
                 IsDefault = false;
             }
             else
@@ -182,6 +184,11 @@ namespace TouchpadGestures_Advanced
             {
                 TypeNameHandling = TypeNameHandling.Auto
             });
+
+            foreach (var nmc in NativeMessaging.NMCs.Values)
+            {
+                nmc.SendCheckFocused();
+            }
         }
     }
 }

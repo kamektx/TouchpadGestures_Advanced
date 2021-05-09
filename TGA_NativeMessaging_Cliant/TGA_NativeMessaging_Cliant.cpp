@@ -128,6 +128,8 @@ int main(int argc, char* argv[])
             file.close();
         }
 
+        mutex sendingMutex;
+
         _setmode(_fileno(stdin), _O_BINARY);
 
         string fileName = app.MyAppData + "\\for_receiving.json";
@@ -140,10 +142,15 @@ int main(int argc, char* argv[])
         auto receiveCommandsAndSendCommands = [&]() {
             if (chrono::duration_cast<std::chrono::milliseconds>(chrono::system_clock::now() - lastTime).count() < 60) return;
             this_thread::sleep_for(chrono::milliseconds(5));
-            ifstream file(fileName);
-            if (!file) throw exception("The File for receiving commands from TGA is broken.");
-            mySend(string(std::istreambuf_iterator<char>(file),
-                std::istreambuf_iterator<char>()));
+            try {
+                ifstream file(fileName);
+                if (!file) throw exception("The File for receiving commands from TGA is broken.");
+                mySend(string(std::istreambuf_iterator<char>(file),
+                    std::istreambuf_iterator<char>()), sendingMutex);
+            }
+            catch (exception& e) {
+                cerr << e.what() << endl;
+            }
             lastTime = chrono::system_clock::now();
         };
 
@@ -346,11 +353,42 @@ int main(int argc, char* argv[])
                         });
                 }
             }
+            else if (jsonType == "RequestBrowserName")
+            {
+                HWND hwnd = ::GetForegroundWindow();
+                WCHAR wApplicationPath[MAX_PATH + 1];
+                DWORD dwProcId;
+
+                GetWindowThreadProcessId(hwnd, &dwProcId);
+                auto hProc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, dwProcId);
+                ::GetModuleFileNameExW(hProc, NULL, wApplicationPath, MAX_PATH);
+                CloseHandle(hProc);
+
+                filesystem::path applicationPath(wApplicationPath);
+                string applicationName = applicationPath.filename().string();
+
+                try
+                {
+                    if (!filesystem::exists(filesystem::path(app.TGA_AppData + "\\SettingsForActiveApp\\" + applicationName + ".json"))) {
+
+                        filesystem::copy_file(filesystem::path(app.TGA_AppData + "\\SettingsForActiveApp\\chrome.exe.json"), filesystem::path(app.TGA_AppData + "\\SettingsForActiveApp\\" + applicationName + ".json"));
+                    }
+                }
+                catch (const std::exception& e)
+                {
+
+                }
+
+                json forSending;
+                forSending["Command"] = "BrowserName";
+                forSending["BrowserName"] = applicationName;
+                mySend(forSending.dump(), sendingMutex);
+            }
             count++;
             json forSending;
             forSending["Command"] = "Received";
             forSending["ReceivedIndex"] = json0.at("SendingIndex").get<int>();
-            mySend(forSending.dump());
+            mySend(forSending.dump(), sendingMutex);
             ::free(buff2);
         }
     }

@@ -17,9 +17,15 @@ namespace TouchpadGestures_Advanced
     public class CommandToSend
     {
         public string Command { get; set; }
-        public int WindowID { get; set; }
-        public int TabID { get; set; }
-        public int PageID { get; set; }
+        public int? WindowID { get; set; }
+        public int? TabID { get; set; }
+        public int? PageID { get; set; }
+    }
+
+    public enum BrowserType
+    {
+        Chromium,
+        Gecko
     }
     public class NMC_Manager
     {
@@ -34,6 +40,23 @@ namespace TouchpadGestures_Advanced
 
         public SemaphoreSlim MySemaphore;
         public FileSystemWatcher Watcher;
+
+        public BrowserType? MyBrowserType
+        {
+            get
+            {
+                switch (SendingObject.ChromiumOrGecko)
+                {
+                    case "Chromium":
+                        return BrowserType.Chromium;
+                    case "Gecko":
+                        return BrowserType.Gecko;
+                    default:
+                        return null;
+                }
+            }
+        }
+
         public SendingObject SendingObject { get; private set; }
         public int ID { get; private set; }
         public string Key { get; private set; }
@@ -111,7 +134,8 @@ namespace TouchpadGestures_Advanced
         }
         public void CheckRunningWithoutWaiting()
         {
-            _ = Task.Run(() => {
+            _ = Task.Run(() =>
+            {
                 MySemaphore.Wait();
                 IsRunning = true;
                 try
@@ -200,13 +224,31 @@ namespace TouchpadGestures_Advanced
             beforeTime = DateTime.Now;
             ReadJSON();
         }
-        public void SendCommand()
+        public void SendChangeTab()
         {
             var cts = new CommandToSend();
             cts.Command = "ChangeTab";
             cts.TabID = ForBrowserWindow.ColumnIndexVsRowIndexVsTabCommon[ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab.Key][ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab.Value].MyTab.TabID;
             cts.WindowID = ForBrowserWindow.ColumnIndexVsRowIndexVsTabCommon[ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab.Key][ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab.Value].MyTab.WindowID;
-            File.WriteAllText(MyAppData + @"\for_receiving.json", JsonConvert.SerializeObject(cts));
+            try
+            {
+                File.WriteAllText(MyAppData + @"\for_receiving.json", JsonConvert.SerializeObject(cts));
+            }
+            catch { }
+        }
+        public void SendCheckFocused()
+        {
+            if (!IsRunning || MyBrowserType == BrowserType.Gecko) return;
+            Task.Run(() =>
+            {
+                var cts = new CommandToSend();
+                cts.Command = "CheckFocused";
+                try
+                {
+                    File.WriteAllText(MyAppData + @"\for_receiving.json", JsonConvert.SerializeObject(cts));
+                }
+                catch { }
+            });
         }
         public NMC_Manager(string key, int id)
         {

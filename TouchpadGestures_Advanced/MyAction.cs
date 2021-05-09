@@ -181,7 +181,7 @@ namespace TouchpadGestures_Advanced
                 this.Semaphore.Wait();
                 if (IsActive)
                 {
-                    MyNMC.SendCommand();
+                    MyNMC.SendChangeTab();
                     MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab = defaultColumnIndexAndRowIndexOfSelectedTab;
                     MyNMC.MySemaphore.Release();
                     MyNMC.ForBrowserWindow.Dispatcher.BeginInvoke(MyNMC.ForBrowserWindow.MakeHidden);

@@ -2,10 +2,12 @@
 #include "MyFunc.h"
 
 using namespace std;
-void mySend(string utf8string)
+void mySend(string utf8string, std::mutex& mutex)
 {
+    lock_guard<std::mutex> lock(mutex);
     string outString = utf8string;
     int dataLength = outString.length();
+    if (dataLength == 0) return;
     BYTE bytes[4];
     for (int i = 0; i < 4; i++)
     {
