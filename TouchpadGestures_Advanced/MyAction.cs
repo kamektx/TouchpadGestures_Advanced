@@ -138,31 +138,20 @@ namespace TouchpadGestures_Advanced
 
         public override void FirstStroke(Direction direction)
         {
-            _ = Task.Run(async () =>
+            _ = Task.Run(() =>
             {
                 this.Semaphore.Wait();
-                if (IsActive) throw new Exception("Don't call FirstStroke() twice before calling Inactivate().");
-                //if (!IsDispatcherInited)
-                //{
-                //    var dispatcherSource = new TaskCompletionSource<Dispatcher>();
-                //    var thread = new Thread(new ThreadStart(() => {
-                //        dispatcherSource.SetResult(Dispatcher.CurrentDispatcher);
-                //        Dispatcher.Run();
-                //    }));
-                //    thread.Start();
-                //    MyDispatcher = dispatcherSource.Task.Result;
-                //    Dispatcher.CurrentDispatcher.ShutdownStarted += (s, e) =>
-                //      MyDispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
-                //    IsDispatcherInited = true;
-                //}
+
+                if (IsActive) return;
+
                 FirstDirection = direction;
                 NativeMessaging.ActiveNMC?.CheckRunning();
                 MyNMC = NativeMessaging.ActiveNMC;
                 if (MyNMC != null && MyNMC.IsActive)
                 {
+                    MyNMC.MySemaphore.Wait();
                     IsActive = true;
                     SizeDifference = new PointD(0, 0);
-                    await MyNMC.MySemaphore.WaitAsync();
                     defaultColumnIndexAndRowIndexOfSelectedTab = MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab;
                     _ = MyNMC.ForBrowserWindow.Dispatcher.BeginInvoke(MyNMC.ForBrowserWindow.MakeVisible);
                 }
@@ -170,7 +159,11 @@ namespace TouchpadGestures_Advanced
                 {
                     IsActive = false;
                 }
-                this.Semaphore.Release();
+                try
+                {
+                    this.Semaphore.Release();
+                }
+                catch { }
             });
 
         }
@@ -183,11 +176,19 @@ namespace TouchpadGestures_Advanced
                 {
                     MyNMC.SendChangeTab();
                     MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab = defaultColumnIndexAndRowIndexOfSelectedTab;
-                    MyNMC.MySemaphore.Release();
+                    try
+                    {
+                        MyNMC.MySemaphore.Release();
+                    }
+                    catch { }
                     MyNMC.ForBrowserWindow.Dispatcher.BeginInvoke(MyNMC.ForBrowserWindow.MakeHidden);
                 }
                 IsActive = false;
-                this.Semaphore.Release();
+                try
+                {
+                    this.Semaphore.Release();
+                }
+                catch { }
             });
         }
         public override void InterpretSize(ref PointD size)
@@ -195,7 +196,17 @@ namespace TouchpadGestures_Advanced
             var currentSize = size;
             _ = Task.Run(() =>
             {
-                this.Semaphore.Wait();
+                bool result = this.Semaphore.Wait(1000);
+                if (result == false)
+                {
+                    Debug.WriteLine("NativeMessagingAction.Semaphore Timeout.");
+                    try
+                    {
+                        this.Semaphore.Release();
+                    }
+                    catch { }
+                    return;
+                }
                 if (IsActive)
                 {
                     var fbw = MyNMC.ForBrowserWindow;
@@ -244,7 +255,11 @@ namespace TouchpadGestures_Advanced
                     }
                     SizeDifference += currentSize - nextSize;
                 }
-                this.Semaphore.Release();
+                try
+                {
+                    this.Semaphore.Release();
+                }
+                catch { }
             });
         }
         public void MoveHorizontal(ref PointD size, Direction direction)

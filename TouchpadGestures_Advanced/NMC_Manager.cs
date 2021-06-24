@@ -80,11 +80,24 @@ namespace TouchpadGestures_Advanced
         {
             Task.Run(() =>
             {
+                string[] files;
                 try
                 {
-                    var files = Directory.GetFiles(MyAppData + @"\screenshot");
-                    Thread.Sleep(2000);
-                    MySemaphore.Wait();
+                    files = Directory.GetFiles(MyAppData + @"\screenshot");
+                }
+                catch { return; }
+                Thread.Sleep(2000);
+                try
+                {
+                    while (MySemaphore.Wait(120 * 1000) == false)
+                    {
+                        Debug.WriteLine("NMC_Manager.MySemaphore Timeout.");
+                        try
+                        {
+                            this.MySemaphore.Release();
+                        }
+                        catch { }
+                    }
                     foreach (var file in files)
                     {
                         var fileInfo = new FileInfo(file);
@@ -94,17 +107,18 @@ namespace TouchpadGestures_Advanced
                             {
                                 File.Delete(file);
                             }
-                            catch (Exception)
-                            {
-
-                            }
+                            catch { }
                         }
                     }
-                    MySemaphore.Release();
                 }
-                catch
+                catch { }
+                finally
                 {
-
+                    try
+                    {
+                        this.MySemaphore.Release();
+                    }
+                    catch { }
                 }
             });
         }
@@ -112,7 +126,15 @@ namespace TouchpadGestures_Advanced
         {
             // Only this method can call MySemaphore.Wait() outside of Task.Run().
             // In other method, CALL MySemaphore.Wait() IN Task.Run()!!
-            MySemaphore.Wait();
+            while (MySemaphore.Wait(2 * 1000) == false)
+            {
+                Debug.WriteLine("NMC_Manager.MySemaphore Timeout (2 second).");
+                try
+                {
+                    this.MySemaphore.Release();
+                }
+                catch { }
+            }
             IsRunning = true;
             try
             {
@@ -130,14 +152,26 @@ namespace TouchpadGestures_Advanced
             {
                 NativeMessaging.DeleteNMC(this);
             }
-            MySemaphore.Release();
+            try
+            {
+                this.MySemaphore.Release();
+            }
+            catch { }
             return IsRunning;
         }
         public void CheckRunningWithoutWaiting()
         {
             _ = Task.Run(() =>
             {
-                MySemaphore.Wait();
+                while (MySemaphore.Wait(120 * 1000) == false)
+                {
+                    Debug.WriteLine("NMC_Manager.MySemaphore Timeout.");
+                    try
+                    {
+                        this.MySemaphore.Release();
+                    }
+                    catch { }
+                }
                 IsRunning = true;
                 try
                 {
@@ -155,14 +189,26 @@ namespace TouchpadGestures_Advanced
                 {
                     NativeMessaging.DeleteNMC(this);
                 }
-                MySemaphore.Release();
+                try
+                {
+                    this.MySemaphore.Release();
+                }
+                catch { }
             });
         }
         public async Task ReadJSON()
         {
             await Task.Run(async () =>
             {
-                await MySemaphore.WaitAsync();
+                while (MySemaphore.Wait(120 * 1000) == false)
+                {
+                    Debug.WriteLine("NMC_Manager.MySemaphore Timeout.");
+                    try
+                    {
+                        this.MySemaphore.Release();
+                    }
+                    catch { }
+                }
                 string sendingObjectJSON = null;
                 for (int i = 0; i < 100; i++)
                 {
@@ -185,16 +231,20 @@ namespace TouchpadGestures_Advanced
                         UsingScreenShot.Clear();
                         NativeMessaging.DeserializingNMC_Key = Key;
                         SendingObject = JsonConvert.DeserializeObject<SendingObject>(sendingObjectJSON);
+                        if (IsActive)
+                        {
+                            NativeMessaging.ActiveNMC = this;
+                        }
                         NativeMessaging.Semaphore.Release();
                     });
                     IsForBrowserUp.WaitOne();
-                    if (IsActive)
-                    {
-                        NativeMessaging.ActiveNMC = this;
-                    }
                     ForBrowserWindow.Dispatcher.BeginInvoke(ForBrowserWindow.Refresh);
                 }
-                MySemaphore.Release();
+                try
+                {
+                    this.MySemaphore.Release();
+                }
+                catch { }
             });
         }
         public async Task StartDirectoryWatch()

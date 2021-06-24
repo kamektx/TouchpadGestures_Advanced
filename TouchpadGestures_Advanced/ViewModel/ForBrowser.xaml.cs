@@ -55,7 +55,6 @@ namespace TouchpadGestures_Advanced
             {
                 try
                 {
-                    Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#c5000000"));
                     SPs.Clear();
                     ColumnsIndexVsTabIndexVsTabCommon.Clear();
                     ColumnIndexVsRowIndexVsTabCommon.Clear();
@@ -220,6 +219,49 @@ namespace TouchpadGestures_Advanced
                                 }
                         }
                     }
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        ColumnIndexVsHorizontalBoundary.Clear();
+                        ColumnIndexVsRowIndexVsVerticalBoundary.Clear();
+                        {
+                            ColumnIndexVsHorizontalBoundary.Add(0);
+                            int i = 0;
+                            foreach (var item in SPs)
+                            {
+                                ColumnIndexVsHorizontalBoundary.Add(ColumnIndexVsHorizontalBoundary[i] + item.ActualWidth);
+                                i++;
+                            }
+                        }
+                        {
+                            int i = 0;
+                            foreach (var rowIndexVsTabCommon in ColumnIndexVsRowIndexVsTabCommon)
+                            {
+                                ColumnIndexVsRowIndexVsVerticalBoundary.Add(new List<double> { 0 });
+                                int j = 0;
+                                foreach (var tabCommon in rowIndexVsTabCommon.Values)
+                                {
+                                    ColumnIndexVsRowIndexVsVerticalBoundary[i].Add(ColumnIndexVsRowIndexVsVerticalBoundary[i][j] + tabCommon.ActualHeight);
+                                    j++;
+                                }
+                                i++;
+                            }
+                        }
+                        {
+                            this.Top = (Status.PrimaryScreenHeight - this.ActualHeight) / 2.0;
+                            double leftTemp;
+                            if (this.ActualWidth < Status.ForBrowserMaxWidth)
+                            {
+                                leftTemp = (Status.PrimaryScreenWidth - this.ActualWidth) / 2.0;
+                                isOverFlow = false;
+                            }
+                            else
+                            {
+                                leftTemp = Status.MinimumHorizontalPadding;
+                                isOverFlow = true;
+                            }
+                            this.Left = leftTemp;
+                        }
+                    }, DispatcherPriority.Loaded);
                 }
                 catch
                 {
@@ -234,49 +276,6 @@ namespace TouchpadGestures_Advanced
         public void MakeVisible()
         {
             //Visibility = Visibility.Visible;
-            ColumnIndexVsHorizontalBoundary.Clear();
-            ColumnIndexVsRowIndexVsVerticalBoundary.Clear();
-            this.Dispatcher.Invoke(() =>
-            {
-                {
-                    ColumnIndexVsHorizontalBoundary.Add(0);
-                    int i = 0;
-                    foreach (var item in SPs)
-                    {
-                        ColumnIndexVsHorizontalBoundary.Add(ColumnIndexVsHorizontalBoundary[i] + item.ActualWidth);
-                        i++;
-                    }
-                }
-                {
-                    int i = 0;
-                    foreach (var rowIndexVsTabCommon in ColumnIndexVsRowIndexVsTabCommon)
-                    {
-                        ColumnIndexVsRowIndexVsVerticalBoundary.Add(new List<double> { 0 });
-                        int j = 0;
-                        foreach (var tabCommon in rowIndexVsTabCommon.Values)
-                        {
-                            ColumnIndexVsRowIndexVsVerticalBoundary[i].Add(ColumnIndexVsRowIndexVsVerticalBoundary[i][j] + tabCommon.ActualHeight);
-                            j++;
-                        }
-                        i++;
-                    }
-                }
-                {
-                    this.Top = (Status.PrimaryScreenHeight - this.ActualHeight) / 2.0;
-                    double leftTemp;
-                    if (this.ActualWidth < Status.ForBrowserMaxWidth)
-                    {
-                        leftTemp = (Status.PrimaryScreenWidth - this.ActualWidth) / 2.0;
-                        isOverFlow = false;
-                    }
-                    else
-                    {
-                        leftTemp = Status.MinimumHorizontalPadding;
-                        isOverFlow = true;
-                    }
-                    this.Left = leftTemp;
-                }
-            });
             Opacity = 1.0;
         }
 
@@ -332,6 +331,7 @@ namespace TouchpadGestures_Advanced
             MyData = new ForBrowserData(this);
             MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(1, 0);
             DataContext = MyData;
+            Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#c5000000"));
             InitializeComponent();
         }
     }
