@@ -269,8 +269,11 @@ namespace TouchpadGestures_Advanced
                     WrapperSP.Children.Clear();
                 }
             }
-
-            MyNMC.MySemaphore.Release();
+            try
+            {
+                MyNMC.MySemaphore.Release();
+            }
+            catch { }
         }
 
         public void MakeVisible()
