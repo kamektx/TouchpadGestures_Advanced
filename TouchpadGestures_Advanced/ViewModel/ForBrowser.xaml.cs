@@ -47,7 +47,6 @@ namespace TouchpadGestures_Advanced
 
         public void RefreshDirectionSpecified(Direction dir)
         {
-            MyNMC.MySemaphore.Wait();
             MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(0, 0);
             var s = MyNMC.SendingObject;
             WrapperSP.Children.Clear();
@@ -269,11 +268,6 @@ namespace TouchpadGestures_Advanced
                     WrapperSP.Children.Clear();
                 }
             }
-            try
-            {
-                MyNMC.MySemaphore.Release();
-            }
-            catch { }
         }
 
         public void MakeVisible()
@@ -318,6 +312,8 @@ namespace TouchpadGestures_Advanced
 
         public ForBrowser(NMC_Manager nMC_Magager, Direction direction) : base()
         {
+            MyData = new ForBrowserData(this);
+            DataContext = MyData;
             Visibility = Visibility.Visible;
             MakeHidden();
             MyDirection = direction;
@@ -331,9 +327,6 @@ namespace TouchpadGestures_Advanced
             MyNMC = nMC_Magager;
             MyTabWithImage2Data = new TabWithImage2Data();
             MyTabSmallData = new TabSmallData();
-            MyData = new ForBrowserData(this);
-            MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(1, 0);
-            DataContext = MyData;
             Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#c5000000"));
             InitializeComponent();
         }

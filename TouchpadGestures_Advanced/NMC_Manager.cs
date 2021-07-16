@@ -238,7 +238,7 @@ namespace TouchpadGestures_Advanced
                         NativeMessaging.Semaphore.Release();
                     });
                     IsForBrowserUp.WaitOne();
-                    ForBrowserWindow.Dispatcher.BeginInvoke(ForBrowserWindow.Refresh);
+                    ForBrowserWindow.Dispatcher.Invoke(ForBrowserWindow.Refresh);
                 }
                 try
                 {

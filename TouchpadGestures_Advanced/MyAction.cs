@@ -145,7 +145,7 @@ namespace TouchpadGestures_Advanced
                 if (IsActive) return;
 
                 FirstDirection = direction;
-                NativeMessaging.ActiveNMC?.CheckRunning();
+                //NativeMessaging.ActiveNMC?.CheckRunning();
                 MyNMC = NativeMessaging.ActiveNMC;
                 if (MyNMC != null && MyNMC.IsActive)
                 {
@@ -153,7 +153,7 @@ namespace TouchpadGestures_Advanced
                     IsActive = true;
                     SizeDifference = new PointD(0, 0);
                     defaultColumnIndexAndRowIndexOfSelectedTab = MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab;
-                    _ = MyNMC.ForBrowserWindow.Dispatcher.BeginInvoke(MyNMC.ForBrowserWindow.MakeVisible);
+                    MyNMC.ForBrowserWindow.Dispatcher.Invoke(MyNMC.ForBrowserWindow.MakeVisible);
                 }
                 else
                 {
@@ -181,7 +181,7 @@ namespace TouchpadGestures_Advanced
                         MyNMC.MySemaphore.Release();
                     }
                     catch { }
-                    MyNMC.ForBrowserWindow.Dispatcher.BeginInvoke(MyNMC.ForBrowserWindow.MakeHidden);
+                    MyNMC.ForBrowserWindow.Dispatcher.Invoke(MyNMC.ForBrowserWindow.MakeHidden);
                 }
                 IsActive = false;
                 try
@@ -196,15 +196,10 @@ namespace TouchpadGestures_Advanced
             var currentSize = size;
             _ = Task.Run(() =>
             {
-                bool result = this.Semaphore.Wait(1000);
+                bool result = this.Semaphore.Wait(200);
                 if (result == false)
                 {
                     Debug.WriteLine("NativeMessagingAction.Semaphore Timeout.");
-                    try
-                    {
-                        this.Semaphore.Release();
-                    }
-                    catch { }
                     return;
                 }
                 if (IsActive)
