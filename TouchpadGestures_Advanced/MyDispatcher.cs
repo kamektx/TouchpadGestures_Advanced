@@ -34,7 +34,7 @@ namespace TouchpadGestures_Advanced
 
         public Direction FirstDirection = Direction.down;
         public bool IsActive = false;
-        public bool InterpretSize(ref PointD size)
+        public bool InterpretSize(PointD size)
         {
             switch (WhichActionType())
             {
@@ -42,10 +42,10 @@ namespace TouchpadGestures_Advanced
                     Debug.WriteLine("DispatcherInterpretSize() is called when the ActionType is dontHandle.");
                     break;
                 case ActionType.shortcut:
-                    Data.DirectionAction[FirstDirection].InterpretSize(ref size);
+                    Data.DirectionAction[FirstDirection].InterpretSize(size);
                     break;
                 case ActionType.nativeMessaging:
-                    Data.DirectionAction[FirstDirection].InterpretSize(ref size);
+                    Data.DirectionAction[FirstDirection].InterpretSize(size);
                     break;
                 case ActionType.error:
                     Debug.WriteLine("DispatcherInterpretSize() is called before FirstStroke().");

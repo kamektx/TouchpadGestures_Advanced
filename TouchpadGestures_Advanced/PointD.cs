@@ -93,5 +93,9 @@ namespace TouchpadGestures_Advanced
         //{
         //    return a.X != b.X || a.Y != b.Y;
         //}
+        public override string ToString()
+        {
+            return $"{X:F2} * {Y:F2}";
+        }
     }
 }

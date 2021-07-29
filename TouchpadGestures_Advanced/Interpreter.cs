@@ -205,7 +205,7 @@ namespace TouchpadGestures_Advanced
                 if (Condition == Conditions.active || Condition == Conditions.ignore)
                 {
                     GetNewSize(ref _Size, _InputData, _OldInputData);
-                    App.DispatcherNow.InterpretSize(ref _Size);
+                    App.DispatcherNow.InterpretSize(_Size);
                 }
                 else if (Condition == Conditions.distinguish)
                 {
