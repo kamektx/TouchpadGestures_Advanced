@@ -196,10 +196,14 @@ namespace TouchpadGestures_Advanced
                 catch { }
             });
         }
+
+        private bool ReadJsonWaiting = false;
         public async Task ReadJSON()
         {
+            if (ReadJsonWaiting) return;
             await Task.Run(async () =>
             {
+                ReadJsonWaiting = true;
                 while (MySemaphore.Wait(120 * 1000) == false)
                 {
                     Debug.WriteLine("NMC_Manager.MySemaphore Timeout.");
@@ -209,6 +213,7 @@ namespace TouchpadGestures_Advanced
                     }
                     catch { }
                 }
+                ReadJsonWaiting = false;
                 string sendingObjectJSON = null;
                 for (int i = 0; i < 100; i++)
                 {

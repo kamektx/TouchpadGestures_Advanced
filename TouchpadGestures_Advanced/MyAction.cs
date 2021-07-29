@@ -107,8 +107,8 @@ namespace TouchpadGestures_Advanced
         private bool IsActive = false;
         private NMC_Manager MyNMC = null;
         private KeyValuePair<int, int> defaultColumnIndexAndRowIndexOfSelectedTab;
-        private SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
         private PointD SizeDifference = new PointD(0, 0);
+        private TaskQueueSingleThread TaskQueue = new TaskQueueSingleThread();
 
         [JsonIgnore]
         public override double VerticalThreshold
@@ -138,124 +138,97 @@ namespace TouchpadGestures_Advanced
 
         public override void FirstStroke(Direction direction)
         {
-            _ = Task.Run(() =>
-            {
-                this.Semaphore.Wait();
+            TaskQueue.AddTask(() =>
+           {
+               if (IsActive) return;
 
-                if (IsActive) return;
-
-                FirstDirection = direction;
+               FirstDirection = direction;
                 //NativeMessaging.ActiveNMC?.CheckRunning();
                 MyNMC = NativeMessaging.ActiveNMC;
-                if (MyNMC != null && MyNMC.IsActive)
-                {
-                    MyNMC.MySemaphore.Wait();
-                    IsActive = true;
-                    SizeDifference = new PointD(0, 0);
-                    defaultColumnIndexAndRowIndexOfSelectedTab = MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab;
-                    MyNMC.ForBrowserWindow.Dispatcher.Invoke(MyNMC.ForBrowserWindow.MakeVisible);
-                }
-                else
-                {
-                    IsActive = false;
-                }
-                try
-                {
-                    this.Semaphore.Release();
-                }
-                catch { }
-            });
+               if (MyNMC != null && MyNMC.IsActive)
+               {
+                   MyNMC.MySemaphore.Wait();
+                   SizeDifference = new PointD(0, 0);
+                   defaultColumnIndexAndRowIndexOfSelectedTab = MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab;
+                   MyNMC.ForBrowserWindow.Dispatcher.Invoke(MyNMC.ForBrowserWindow.MakeVisible);
+                   IsActive = true;
+               }
+               else
+               {
+                   IsActive = false;
+               }
+           });
 
         }
         public override void Inactivate()
         {
-            _ = Task.Run(() =>
-            {
-                this.Semaphore.Wait();
-                if (IsActive)
-                {
-                    MyNMC.SendChangeTab();
-                    MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab = defaultColumnIndexAndRowIndexOfSelectedTab;
-                    try
-                    {
-                        MyNMC.MySemaphore.Release();
-                    }
-                    catch { }
-                    MyNMC.ForBrowserWindow.Dispatcher.Invoke(MyNMC.ForBrowserWindow.MakeHidden);
-                }
-                IsActive = false;
-                try
-                {
-                    this.Semaphore.Release();
-                }
-                catch { }
-            });
+            TaskQueue.AddTask(() =>
+           {
+               if (IsActive)
+               {
+                   IsActive = false;
+                   MyNMC.SendChangeTab();
+                   MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab = defaultColumnIndexAndRowIndexOfSelectedTab;
+                   try
+                   {
+                       MyNMC.MySemaphore.Release();
+                   }
+                   catch { }
+                   MyNMC.ForBrowserWindow.Dispatcher.Invoke(MyNMC.ForBrowserWindow.MakeHidden);
+               }
+           });
         }
         public override void InterpretSize(ref PointD size)
         {
             var currentSize = size;
-            _ = Task.Run(() =>
+            if (IsActive)
             {
-                bool result = this.Semaphore.Wait(200);
-                if (result == false)
+                var fbw = MyNMC.ForBrowserWindow;
+                var crst = fbw.MyData.ColumnIndexAndRowIndexOfSelectedTab;
+                currentSize -= SizeDifference;
+                var nextSize = new PointD(currentSize);
+                while (nextSize.Width > HorizontalThreshold)
                 {
-                    Debug.WriteLine("NativeMessagingAction.Semaphore Timeout.");
-                    return;
+                    if (crst.Key >= fbw.ColumnIndexVsRowIndexVsTabCommon.Count - 1)
+                    {
+                        nextSize.Width = HorizontalThreshold;
+                        break;
+                    }
+                    nextSize.Width -= HorizontalThreshold;
+                    MoveHorizontal(ref nextSize, Direction.right);
                 }
-                if (IsActive)
+                while (nextSize.Width < -HorizontalThreshold)
                 {
-                    var fbw = MyNMC.ForBrowserWindow;
-                    var crst = fbw.MyData.ColumnIndexAndRowIndexOfSelectedTab;
-                    currentSize -= SizeDifference;
-                    var nextSize = new PointD(currentSize);
-                    while (nextSize.Width > HorizontalThreshold)
+                    if (crst.Key <= 0)
                     {
-                        if (crst.Key >= fbw.ColumnIndexVsRowIndexVsTabCommon.Count - 1)
-                        {
-                            nextSize.Width = HorizontalThreshold;
-                            break;
-                        }
-                        nextSize.Width -= HorizontalThreshold;
-                        MoveHorizontal(ref nextSize, Direction.right);
+                        nextSize.Width = -HorizontalThreshold;
+                        break;
                     }
-                    while (nextSize.Width < -HorizontalThreshold)
-                    {
-                        if (crst.Key <= 0)
-                        {
-                            nextSize.Width = -HorizontalThreshold;
-                            break;
-                        }
-                        nextSize.Width += HorizontalThreshold;
-                        MoveHorizontal(ref nextSize, Direction.left);
-                    }
-                    while (nextSize.Height > VerticalThreshold)
-                    {
-                        if (crst.Value >= fbw.ColumnIndexVsRowIndexVsTabCommon[crst.Key].Count - 1)
-                        {
-                            nextSize.Height = VerticalThreshold;
-                            break;
-                        }
-                        nextSize.Height -= VerticalThreshold;
-                        MoveVertical(Direction.down);
-                    }
-                    while (nextSize.Height < -VerticalThreshold)
-                    {
-                        if (crst.Value <= 0)
-                        {
-                            nextSize.Height = -VerticalThreshold;
-                            break;
-                        }
-                        nextSize.Height += VerticalThreshold;
-                        MoveVertical(Direction.up);
-                    }
-                    SizeDifference += currentSize - nextSize;
+                    nextSize.Width += HorizontalThreshold;
+                    MoveHorizontal(ref nextSize, Direction.left);
                 }
-                try
+                while (nextSize.Height > VerticalThreshold)
                 {
-                    this.Semaphore.Release();
+                    if (crst.Value >= fbw.ColumnIndexVsRowIndexVsTabCommon[crst.Key].Count - 1)
+                    {
+                        nextSize.Height = VerticalThreshold;
+                        break;
+                    }
+                    nextSize.Height -= VerticalThreshold;
+                    MoveVertical(Direction.down);
                 }
-                catch { }
-            });
+                while (nextSize.Height < -VerticalThreshold)
+                {
+                    if (crst.Value <= 0)
+                    {
+                        nextSize.Height = -VerticalThreshold;
+                        break;
+                    }
+                    nextSize.Height += VerticalThreshold;
+                    MoveVertical(Direction.up);
+                }
+                SizeDifference += currentSize - nextSize;
+            }
         }
         public void MoveHorizontal(ref PointD size, Direction direction)
         {
