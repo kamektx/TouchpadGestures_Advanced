@@ -48,6 +48,9 @@ std::string base64Decode(const std::string& in, string& formatOut) {
                 else if (dataType.find("jpeg") != string::npos) {
                     formatOut = "jpeg";
                 }
+                else {
+                    throw exception("This data is not valid.");
+                }
                 isBeforeData = false;
             }
             continue;

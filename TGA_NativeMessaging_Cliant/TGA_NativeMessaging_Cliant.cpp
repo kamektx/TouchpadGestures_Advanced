@@ -219,8 +219,6 @@ int main(int argc, char* argv[])
             json json1 = json0.at("Content");
             string jsonType = json1.at("Type").get<string>();
 
-
-
             if (jsonType == "ScreenShot")
             {
                 string data = json1.at("Data").get<string>();
@@ -232,16 +230,17 @@ int main(int argc, char* argv[])
             }
             else if (jsonType == "Favicon")
             {
-                string data = json1.at("Data").get<string>();
-                string format;
-                string name = json1.at("Name").get<string>();
-                string result = base64Decode(data, format);
-                ofstream file(app.MyAppData + "\\favicon\\raw\\" + name + "." + format, ios::binary);
-                file.write(result.c_str(), result.length());
-                file.close();
-
-                convertFavicon(result, name, format);
-
+                try {
+                    string data = json1.at("Data").get<string>();
+                    string format;
+                    string name = json1.at("Name").get<string>();
+                    string result = base64Decode(data, format);
+                    ofstream file(app.MyAppData + "\\favicon\\raw\\" + name + "." + format, ios::binary);
+                    file.write(result.c_str(), result.length());
+                    file.close();
+                    convertFavicon(result, name, format);
+                }
+                catch (const std::exception& e) {}
             }
             else if (jsonType == "FaviconUrl") {
                 auto curlAsync = async(launch::async, [json1]

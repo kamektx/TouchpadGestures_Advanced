@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -7,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Documents.DocumentStructures;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 #pragma warning disable CS4014
@@ -40,6 +42,10 @@ namespace TouchpadGestures_Advanced
 
         public SemaphoreSlim MySemaphore;
         public FileSystemWatcher Watcher;
+
+        public static Uri DefaultScreenshotUri = new Uri(App.TGA_AppData + @"\Image\default.png");
+        public static Uri DefaultFaviconUri = new Uri(App.TGA_AppData + @"\Icon\globe.png");
+        public static int DecodePixelWidth = 500;
 
         public BrowserType? MyBrowserType
         {
@@ -86,6 +92,7 @@ namespace TouchpadGestures_Advanced
                     files = Directory.GetFiles(MyAppData + @"\screenshot");
                 }
                 catch { return; }
+                var idOfScreenshotBitmapImage = ScreenshotBitmapImage.Keys.ToHashSet();
                 Thread.Sleep(2000);
                 try
                 {
@@ -97,6 +104,13 @@ namespace TouchpadGestures_Advanced
                             this.MySemaphore.Release();
                         }
                         catch { }
+                    }
+                    foreach (var id in idOfScreenshotBitmapImage)
+                    {
+                        if (!UsingScreenShot.Contains(id))
+                        {
+                            ScreenshotBitmapImage.Remove(id);
+                        }
                     }
                     foreach (var file in files)
                     {
@@ -243,7 +257,21 @@ namespace TouchpadGestures_Advanced
                         NativeMessaging.Semaphore.Release();
                     });
                     IsForBrowserUp.WaitOne();
+#if DEBUG
+                    var sw = new System.Diagnostics.Stopwatch();
+                    sw.Start();
+#endif
                     ForBrowserWindow.Dispatcher.Invoke(ForBrowserWindow.Refresh);
+#if DEBUG
+                    sw.Stop();
+                    Debug.WriteLine($"{sw.ElapsedMilliseconds:D6}ms : Refresh");
+                    sw.Restart();
+#endif
+                    ForBrowserWindow.Dispatcher.Invoke(ForBrowserWindow.Refresh2, DispatcherPriority.Loaded);
+#if DEBUG
+                    sw.Stop();
+                    Debug.WriteLine($"{sw.ElapsedMilliseconds:D6}ms : Refresh2");
+#endif
                 }
                 try
                 {
@@ -305,6 +333,26 @@ namespace TouchpadGestures_Advanced
                 }
                 catch { }
             });
+        }
+        private Dictionary<string, BitmapImage> FaviconBitmapImage = new Dictionary<string, BitmapImage>();
+        public BitmapImage getFaviconBitmapImage(string id)
+        {
+            var idName = id ?? "null";
+            if (!FaviconBitmapImage.ContainsKey(idName))
+            {
+                FaviconBitmapImage.Add(idName, BitmapImageExtension.MyInit(id != null ? new Uri(MyAppData + @"\favicon\png\" + id + @".png") : null, DefaultFaviconUri, 64));
+            }
+            return FaviconBitmapImage[idName];
+        }
+        private Dictionary<string, BitmapImage> ScreenshotBitmapImage = new Dictionary<string, BitmapImage>();
+        public BitmapImage getScreenshotBitmapImage(string id)
+        {
+            var idName = id ?? "null";
+            if (!ScreenshotBitmapImage.ContainsKey(idName))
+            {
+                ScreenshotBitmapImage.Add(idName, BitmapImageExtension.MyInit(id != null ? new Uri(MyAppData + @"\screenshot\" + id) : null, DefaultScreenshotUri, DecodePixelWidth));
+            }
+            return ScreenshotBitmapImage[idName];
         }
         public NMC_Manager(string key, int id)
         {

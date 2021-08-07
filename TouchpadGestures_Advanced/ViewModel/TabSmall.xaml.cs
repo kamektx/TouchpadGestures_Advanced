@@ -20,13 +20,13 @@ namespace TouchpadGestures_Advanced
         {
             this.MyData = new TabSmallData();
             this.DataContext = this.MyData;
-            InitializeComponent();
             if (MyTab.IsActive)
             {
                 this.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#4a4d8eff"));
             }
             this.Width = sp.Width;
-            this.MyFaviconSource = BitmapImageExtension.MyInit(MyTab.Favicon != null ? new Uri(MyNMC.MyAppData + @"\favicon\png\" + MyTab.Favicon + @".png") : null, DefaultFaviconSourceUri);
+            this.MyFaviconSource = MyNMC.getFaviconBitmapImage(MyTab.Favicon);
+            InitializeComponent();
             this.MyFavicon.Source = this.MyFaviconSource;
             this.MyTitle.Text = myTab.Title ?? "";
         }

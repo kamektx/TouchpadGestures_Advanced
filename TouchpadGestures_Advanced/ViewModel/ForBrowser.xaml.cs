@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -117,7 +118,7 @@ namespace TouchpadGestures_Advanced
                                         rows = maxRows;
                                     }
                                 }
-                                var sampleImageSource = BitmapImageExtension.MyInit((w.LastCapturedTab.HasValue && w.Tabs[w.LastCapturedTab.Value]?.ScreenShot != null) ? new Uri(MyNMC.MyAppData + @"\screenshot\" + w.Tabs[w.LastCapturedTab.Value].ScreenShot) : null, TabCommon.StaticImageSourceUri);
+                                var sampleImageSource = MyNMC.getScreenshotBitmapImage((w.LastCapturedTab.HasValue && w.Tabs[w.LastCapturedTab.Value]?.ScreenShot != null) ? w.Tabs[w.LastCapturedTab.Value].ScreenShot : null);
 
                                 int sampleWidth = ItemBigMaxWidth;
                                 double sampleActualHeight = (sampleWidth - MyTabWithImage2Data.MyBorderThickness * 2 - MyTabWithImage2Data.MyBorderPadding * 2) * sampleImageSource.PixelHeight / sampleImageSource.PixelWidth + MyTabWithImage2Data.FaviconGridWidthAndHeight + MyTabWithImage2Data.MyBorderThickness * 2 + MyTabWithImage2Data.MyBorderPadding * 2;
@@ -219,49 +220,6 @@ namespace TouchpadGestures_Advanced
                             }
                     }
                 }
-                this.Dispatcher.Invoke(() =>
-                {
-                    ColumnIndexVsHorizontalBoundary.Clear();
-                    ColumnIndexVsRowIndexVsVerticalBoundary.Clear();
-                    {
-                        ColumnIndexVsHorizontalBoundary.Add(0);
-                        int i = 0;
-                        foreach (var item in SPs)
-                        {
-                            ColumnIndexVsHorizontalBoundary.Add(ColumnIndexVsHorizontalBoundary[i] + item.ActualWidth);
-                            i++;
-                        }
-                    }
-                    {
-                        int i = 0;
-                        foreach (var rowIndexVsTabCommon in ColumnIndexVsRowIndexVsTabCommon)
-                        {
-                            ColumnIndexVsRowIndexVsVerticalBoundary.Add(new List<double> { 0 });
-                            int j = 0;
-                            foreach (var tabCommon in rowIndexVsTabCommon.Values)
-                            {
-                                ColumnIndexVsRowIndexVsVerticalBoundary[i].Add(ColumnIndexVsRowIndexVsVerticalBoundary[i][j] + tabCommon.ActualHeight);
-                                j++;
-                            }
-                            i++;
-                        }
-                    }
-                    {
-                        this.Top = (Status.PrimaryScreenHeight - this.ActualHeight) / 2.0;
-                        double leftTemp;
-                        if (this.ActualWidth < Status.ForBrowserMaxWidth)
-                        {
-                            leftTemp = (Status.PrimaryScreenWidth - this.ActualWidth) / 2.0;
-                            isOverFlow = false;
-                        }
-                        else
-                        {
-                            leftTemp = Status.MinimumHorizontalPadding;
-                            isOverFlow = true;
-                        }
-                        this.Left = leftTemp;
-                    }
-                }, DispatcherPriority.Loaded);
             }
             catch
             {
@@ -269,6 +227,52 @@ namespace TouchpadGestures_Advanced
                 WrapperSP.Children.Clear();
             }
 
+        }
+
+        public void Refresh2()
+        {
+            if (!MyNMC.IsActive) return;
+
+            ColumnIndexVsHorizontalBoundary.Clear();
+            ColumnIndexVsRowIndexVsVerticalBoundary.Clear();
+            {
+                ColumnIndexVsHorizontalBoundary.Add(0);
+                int i = 0;
+                foreach (var item in SPs)
+                {
+                    ColumnIndexVsHorizontalBoundary.Add(ColumnIndexVsHorizontalBoundary[i] + item.ActualWidth);
+                    i++;
+                }
+            }
+            {
+                int i = 0;
+                foreach (var rowIndexVsTabCommon in ColumnIndexVsRowIndexVsTabCommon)
+                {
+                    ColumnIndexVsRowIndexVsVerticalBoundary.Add(new List<double> { 0 });
+                    int j = 0;
+                    foreach (var tabCommon in rowIndexVsTabCommon.Values)
+                    {
+                        ColumnIndexVsRowIndexVsVerticalBoundary[i].Add(ColumnIndexVsRowIndexVsVerticalBoundary[i][j] + tabCommon.ActualHeight);
+                        j++;
+                    }
+                    i++;
+                }
+            }
+            {
+                this.Top = (Status.PrimaryScreenHeight - this.ActualHeight) / 2.0;
+                double leftTemp;
+                if (this.ActualWidth < Status.ForBrowserMaxWidth)
+                {
+                    leftTemp = (Status.PrimaryScreenWidth - this.ActualWidth) / 2.0;
+                    isOverFlow = false;
+                }
+                else
+                {
+                    leftTemp = Status.MinimumHorizontalPadding;
+                    isOverFlow = true;
+                }
+                this.Left = leftTemp;
+            }
         }
 
         public void MakeVisible()

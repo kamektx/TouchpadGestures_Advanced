@@ -51,7 +51,8 @@ namespace TouchpadGestures_Advanced
                 }
                 App.Registry_TGA_NMC.SetValue("NMC" + nmc.ID + "_Key", "", RegistryValueKind.String);
                 App.Registry_TGA_NMC.SetValue("NMC" + nmc.ID + "_PID", 0, RegistryValueKind.DWord);
-                _ = Task.Run(() => {
+                _ = Task.Run(() =>
+                {
                     switch (nmc.WindowState)
                     {
                         case 0:
@@ -84,17 +85,17 @@ namespace TouchpadGestures_Advanced
                 if (((1 << i) & NMC_Running) != 0)
                 {
                     string key = (string)App.Registry_TGA_NMC.GetValue("NMC" + i + "_Key");
-                    Semaphore.Wait();
                     if (NMCs.ContainsKey(key) == false)
                     {
+                        Semaphore.Wait();
                         NMCs.Add(key, new NMC_Manager(key, i));
+                        Semaphore.Release();
                     }
                     else
                     {
                         NMCs[key].DeleteOldScreenShot();
                         NMCs[key].CheckRunningWithoutWaiting();
                     }
-                    Semaphore.Release();
                 }
             }
         }

@@ -34,11 +34,9 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Border Grid.Row="1" Style="{StaticResource MyBorder}" VerticalAlignment="Stretch" MaxHeight="{Binding ElementName=UserControl, Path=MaxHeight}">
+            <Border Grid.Row="0" Style="{StaticResource MyBorder}" VerticalAlignment="Stretch" MaxHeight="{Binding ElementName=UserControl, Path=MaxHeight}">
                 <Grid VerticalAlignment="Stretch" Margin="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="{Binding Path=FaviconGridWidth}"/>

@@ -51,6 +51,7 @@ namespace TouchpadGestures_Advanced
                 bi.UriSource = alternative;
                 bi.EndInit();
             }
+            bi.Freeze();
             return bi;
         }
     }
