@@ -221,12 +221,17 @@ int main(int argc, char* argv[])
 
             if (jsonType == "ScreenShot")
             {
-                string data = json1.at("Data").get<string>();
-                string format;
-                string result = base64Decode(data, format);
-                ofstream file(app.MyAppData + "\\screenshot\\" + json1.at("FileName").get<string>(), ios::binary);
-                file.write(result.c_str(), result.length());
-                file.close();
+                try
+                {
+                    string data = json1.at("Data").get<string>();
+                    string format;
+                    string result = base64Decode(data, format);
+                    ofstream file(app.MyAppData + "\\screenshot\\" + json1.at("FileName").get<string>(), ios::binary);
+                    file.write(result.c_str(), result.length());
+                    file.close();
+                }
+                catch (const std::exception& e) {}
+
             }
             else if (jsonType == "Favicon")
             {
@@ -383,6 +388,7 @@ int main(int argc, char* argv[])
                 forSending["BrowserName"] = applicationName;
                 mySend(forSending.dump(), sendingMutex);
             }
+
             count++;
             json forSending;
             forSending["Command"] = "Received";

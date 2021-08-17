@@ -84,18 +84,18 @@ namespace TouchpadGestures_Advanced
             {
                 if (((1 << i) & NMC_Running) != 0)
                 {
+                    Semaphore.Wait();
                     string key = (string)App.Registry_TGA_NMC.GetValue("NMC" + i + "_Key");
                     if (NMCs.ContainsKey(key) == false)
                     {
-                        Semaphore.Wait();
                         NMCs.Add(key, new NMC_Manager(key, i));
-                        Semaphore.Release();
                     }
                     else
                     {
                         NMCs[key].DeleteOldScreenShot();
                         NMCs[key].CheckRunningWithoutWaiting();
                     }
+                    Semaphore.Release();
                 }
             }
         }
