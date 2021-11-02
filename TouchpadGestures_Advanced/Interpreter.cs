@@ -51,7 +51,8 @@ namespace TouchpadGestures_Advanced
         public List<CollectionData> LinkCollection { get; set; }
         public int ScanTime { get; set; }
         public int ContactCount { get; set; }
-        public bool IsTandCType { get; set; }
+        public bool IsHybrid { get; set; }
+        public int DataCount { get; set; }
         public bool IsOff
         {
             get
@@ -120,13 +121,14 @@ namespace TouchpadGestures_Advanced
             }
             return this;
         }
-        public InputData GetCInput(InputData cInput)
+        public bool GetCInput(InputData cInput)
         {
-            for (int i = 1; i < ContactCount; i++)
+            for (int i = this.DataCount; i < this.DataCount + cInput.DataCount; i++)
             {
-                LinkCollection[i] = cInput.LinkCollection[i - 1];
+                LinkCollection[i] = cInput.LinkCollection[i - this.DataCount];
             }
-            return this;
+            this.DataCount += cInput.DataCount;
+            return this.DataCount == this.ContactCount;
         }
     }
     internal static class Interpreter
@@ -159,7 +161,8 @@ namespace TouchpadGestures_Advanced
         {
             if ((inputData.ContactCount == 3 && inputData.IsOff == false) && (oldInputData.ContactCount == 3 && oldInputData.IsOff == false))
             {
-                size += (inputData.Mean - oldInputData.Mean) * (Condition == Conditions.ignore ? App.Settings.IgnoreMagnification : 1d);
+                var add = (inputData.Mean - oldInputData.Mean) * (Condition == Conditions.ignore ? App.Settings.IgnoreMagnification : 1d);
+                size += add;
             }
             else
             {
@@ -183,7 +186,8 @@ namespace TouchpadGestures_Advanced
                         oldLinkCollectionList.Add(oldContactID_LinkCollection[contactID_Index.Key]);
                     }
                 }
-                size += (inputData.Mean2(nowLinkCollectionList) - oldInputData.Mean2(oldLinkCollectionList)) * (Condition == Conditions.ignore ? App.Settings.IgnoreMagnification : 1d);
+                var add = (inputData.Mean2(nowLinkCollectionList) - oldInputData.Mean2(oldLinkCollectionList)) * (Condition == Conditions.ignore ? App.Settings.IgnoreMagnification : 1d);
+                size += add;
             }
 
             return true;
@@ -199,12 +203,16 @@ namespace TouchpadGestures_Advanced
         {
             // UI Thread
             var inputData = JsonConvert.DeserializeObject<InputData>(argJson);
-            if (inputData.IsTandCType)
+            if (inputData.IsHybrid)
             {
                 if (inputData.ContactCount == 0)
                 {
-                    _InputData = _TandCInputDataTemp.GetCInput(inputData).RemoveNotFinger();
-                    Interpret();
+                    bool status = _TandCInputDataTemp.GetCInput(inputData);
+                    if (status)
+                    {
+                        _InputData = _TandCInputDataTemp.RemoveNotFinger();
+                        Interpret();
+                    }
                 }
                 else
                 {
