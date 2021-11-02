@@ -8,7 +8,7 @@
     <RootNamespace>TouchpadGestures_Advanced</RootNamespace>
     <AssemblyName>TouchpadGestures_Advanced</AssemblyName>
     <ApplicationIcon>Icon\TGA_icon.ico</ApplicationIcon>
-    <Version>0.3.114</Version>
+    <Version>0.3.117</Version>
     <Authors>kamektx</Authors>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
@@ -74,6 +74,9 @@
   </Target>
 
 </Project>
+
+
+
 
 
 
