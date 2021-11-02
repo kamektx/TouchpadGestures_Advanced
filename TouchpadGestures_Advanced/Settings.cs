@@ -70,6 +70,12 @@ namespace TouchpadGestures_Advanced
             get { return _VerticalMultiplierForBig; }
             set { _VerticalMultiplierForBig = value; }
         }
+        private double _NextPositionScale = 1.6;
+        public double NextPositionScale
+        {
+            get { return _NextPositionScale; }
+            set { _NextPositionScale = value; }
+        }
         [JsonIgnore]
         public double VerticalThresholdBig
         {

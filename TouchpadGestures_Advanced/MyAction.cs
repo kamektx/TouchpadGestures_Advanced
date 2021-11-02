@@ -74,22 +74,22 @@ namespace TouchpadGestures_Advanced
         {
             while (size.Height > VerticalThreshold)
             {
-                size.Height -= VerticalThreshold;
+                size.Height -= VerticalThreshold * App.Settings.NextPositionScale;
                 Stroke(Direction.down);
             }
             while (size.Height < -VerticalThreshold)
             {
-                size.Height += VerticalThreshold;
+                size.Height += VerticalThreshold * App.Settings.NextPositionScale;
                 Stroke(Direction.up);
             }
             while (size.Width > HorizontalThreshold)
             {
-                size.Width -= HorizontalThreshold;
+                size.Width -= HorizontalThreshold * App.Settings.NextPositionScale;
                 Stroke(Direction.right);
             }
             while (size.Width < -HorizontalThreshold)
             {
-                size.Width += HorizontalThreshold;
+                size.Width += HorizontalThreshold * App.Settings.NextPositionScale;
                 Stroke(Direction.left);
             }
         }
@@ -191,8 +191,6 @@ namespace TouchpadGestures_Advanced
             var fbw = MyNMC.ForBrowserWindow;
             var crst = fbw.MyData.ColumnIndexAndRowIndexOfSelectedTab;
             var currentPosition = PreviousPosition + sizeDiff;
-            double nextPositionScaleHorizontal = 1.8;
-            double nextPositionScaleVertical = 1.2;
             while (currentPosition.Width > HorizontalThreshold)
             {
                 if (crst.Key >= fbw.ColumnIndexVsRowIndexVsTabCommon.Count - 1)
@@ -201,7 +199,7 @@ namespace TouchpadGestures_Advanced
                     break;
                 }
                 MoveHorizontal(ref currentPosition, Direction.right);
-                currentPosition.Width -= HorizontalThreshold * nextPositionScaleHorizontal;
+                currentPosition.Width -= HorizontalThreshold * App.Settings.NextPositionScale;
             }
             while (currentPosition.Width < -HorizontalThreshold)
             {
@@ -211,7 +209,7 @@ namespace TouchpadGestures_Advanced
                     break;
                 }
                 MoveHorizontal(ref currentPosition, Direction.left);
-                currentPosition.Width += HorizontalThreshold * nextPositionScaleHorizontal;
+                currentPosition.Width += HorizontalThreshold * App.Settings.NextPositionScale;
             }
             while (currentPosition.Height > VerticalThreshold)
             {
@@ -221,7 +219,7 @@ namespace TouchpadGestures_Advanced
                     break;
                 }
                 MoveVertical(Direction.down);
-                currentPosition.Height -= VerticalThreshold * nextPositionScaleVertical;
+                currentPosition.Height -= VerticalThreshold * App.Settings.NextPositionScale;
             }
             while (currentPosition.Height < -VerticalThreshold)
             {
@@ -231,7 +229,7 @@ namespace TouchpadGestures_Advanced
                     break;
                 }
                 MoveVertical(Direction.up);
-                currentPosition.Height += VerticalThreshold * nextPositionScaleVertical;
+                currentPosition.Height += VerticalThreshold * App.Settings.NextPositionScale;
             }
             PreviousPosition = currentPosition;
             PreviousSize = new PointD(size);
