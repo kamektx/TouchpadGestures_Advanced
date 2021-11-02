@@ -61,9 +61,9 @@ DLLEXPORT int __stdcall HidManager(WPARAM wParam, LPARAM lParam, char* rjson, un
                     raw->data.hid.dwSizeHid
                 );
 
-                //if (status != HIDP_STATUS_SUCCESS) {
-                //    OutputDebugStringW(L"HidP_GetUsageValue failed.");
-                //}
+                if (status != HIDP_STATUS_SUCCESS) {
+                    OutputDebugStringW(L"HidP_GetUsageValue failed.");
+                }
 
                 if (inputValueCaps[i].LinkCollection == 0) {
                     if (inputValueCaps[i].UsagePage == 0x0d && inputValueCaps[i].NotRange.Usage == 0x56) {
@@ -102,13 +102,13 @@ DLLEXPORT int __stdcall HidManager(WPARAM wParam, LPARAM lParam, char* rjson, un
         }
 
         int contactCount = ljson["ContactCount"].get<unsigned long>();
-        bool isTandCType = false;
+        bool isHybrid = false;
         if (contactCount == 0 || (contactCount > 1 && !doesLinkCollectionAbove1Exist)) {
-            ljson["isTandCType"] = true;
-            isTandCType = true;
+            ljson["IsHybrid"] = true;
+            isHybrid = true;
         }
         else {
-            ljson["isTandCType"] = false;
+            ljson["IsHybrid"] = false;
         }
 
         if (dwCount > 1) {
@@ -150,7 +150,7 @@ DLLEXPORT int __stdcall HidManager(WPARAM wParam, LPARAM lParam, char* rjson, un
             {
                 ULONG usageLength = 9;
                 USAGE_AND_PAGE usage_and_page[9] = { sizeof(usage_and_page) };
-                if (linkCollection > ljson["ContactCount"].get<unsigned long>() || (linkCollection != 1 && isTandCType)) {
+                if (linkCollection > ljson["ContactCount"].get<unsigned long>() || (linkCollection != 1 && isHybrid)) {
                     ljson["LinkCollection"][linkCollection - 1]["Tip"] = "no";
                     ljson["LinkCollection"][linkCollection - 1]["IsFinger"] = false;
                     continue;
@@ -170,7 +170,7 @@ DLLEXPORT int __stdcall HidManager(WPARAM wParam, LPARAM lParam, char* rjson, un
                 }
             }
         }
-
+        ljson["DataCount"] = dwCount;
 
         strcpy_s(rjson, length, ljson.dump().c_str());
 

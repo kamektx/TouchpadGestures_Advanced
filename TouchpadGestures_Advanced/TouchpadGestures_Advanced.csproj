@@ -8,7 +8,11 @@
     <RootNamespace>TouchpadGestures_Advanced</RootNamespace>
     <AssemblyName>TouchpadGestures_Advanced</AssemblyName>
     <ApplicationIcon>Icon\TGA_icon.ico</ApplicationIcon>
+<<<<<<< HEAD
     <Version>0.3.117</Version>
+=======
+    <Version>0.3.130</Version>
+>>>>>>> 56196bef52376318313a534fb7d8e0aa63d59a6c
     <Authors>kamektx</Authors>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
@@ -282,3 +286,19 @@
 
 
 
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> 56196bef52376318313a534fb7d8e0aa63d59a6c
