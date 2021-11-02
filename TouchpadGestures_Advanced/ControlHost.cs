@@ -8,7 +8,7 @@ using System.Security.RightsManagement;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-
+using System.Diagnostics;
 #endregion
 
 namespace TouchpadGestures_Advanced

@@ -51,6 +51,7 @@ namespace TouchpadGestures_Advanced
         public List<CollectionData> LinkCollection { get; set; }
         public int ScanTime { get; set; }
         public int ContactCount { get; set; }
+        public bool IsTandCType { get; set; }
         public bool IsOff
         {
             get
@@ -106,7 +107,7 @@ namespace TouchpadGestures_Advanced
             return _Mean;
         }
 
-        public void RemoveNotFinger()
+        public InputData RemoveNotFinger()
         {
             for (int i = 0; i < ContactCount; i++)
             {
@@ -117,10 +118,20 @@ namespace TouchpadGestures_Advanced
                     LinkCollection.Add(new CollectionData { X = 0, Y = 0, Tip = "no", IsFinger = false, ContactID = 0 });
                 }
             }
+            return this;
+        }
+        public InputData GetCInput(InputData cInput)
+        {
+            for (int i = 1; i < ContactCount; i++)
+            {
+                LinkCollection[i] = cInput.LinkCollection[i - 1];
+            }
+            return this;
         }
     }
     internal static class Interpreter
     {
+        internal static InputData _TandCInputDataTemp;
         internal static InputData _InputData;
         internal static InputData _OldInputData;
         internal static PointD _Size = new PointD(0, 0);
@@ -130,7 +141,15 @@ namespace TouchpadGestures_Advanced
             get
             {
                 return
-                    ((Condition == Conditions.active || Condition == Conditions.ignore) && ((_InputData.ContactCount == 2 && _InputData.IsOff == false) || (_InputData.ContactCount == 3 && _InputData.IsOffMoreThan2 == false)))
+                    (
+                        (Condition == Conditions.active || Condition == Conditions.ignore)
+                        &&
+                        (
+                            (_InputData.ContactCount == 2 && _InputData.IsOff == false)
+                            ||
+                            (_InputData.ContactCount == 3 && _InputData.IsOffMoreThan2 == false)
+                        )
+                    )
                     ||
                     (_InputData.ContactCount == 3 && _InputData.IsOff == false);
             }
@@ -166,6 +185,7 @@ namespace TouchpadGestures_Advanced
                 }
                 size += (inputData.Mean2(nowLinkCollectionList) - oldInputData.Mean2(oldLinkCollectionList)) * (Condition == Conditions.ignore ? App.Settings.IgnoreMagnification : 1d);
             }
+
             return true;
         }
         internal static void InitJson(string argJson)
@@ -178,9 +198,24 @@ namespace TouchpadGestures_Advanced
         internal static void SetJson(string argJson)
         {
             // UI Thread
-            _InputData = JsonConvert.DeserializeObject<InputData>(argJson);
-            _InputData.RemoveNotFinger();
-            Interpret();
+            var inputData = JsonConvert.DeserializeObject<InputData>(argJson);
+            if (inputData.IsTandCType)
+            {
+                if (inputData.ContactCount == 0)
+                {
+                    _InputData = _TandCInputDataTemp.GetCInput(inputData).RemoveNotFinger();
+                    Interpret();
+                }
+                else
+                {
+                    _TandCInputDataTemp = inputData;
+                }
+            }
+            else
+            {
+                _InputData = inputData.RemoveNotFinger();
+                Interpret();
+            }
         }
         internal static void Interpret()
         {

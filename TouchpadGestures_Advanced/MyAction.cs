@@ -254,6 +254,10 @@ namespace TouchpadGestures_Advanced
                     throw new ArgumentException();
             }
             var vb = MyNMC.ForBrowserWindow.ColumnIndexVsRowIndexVsVerticalBoundary;
+            if (nextColumn < 0 || nextColumn > vb.Count - 1)
+            {
+                return;
+            }
             double location = vb[hereColumn][hereRow] + (vb[hereColumn][hereRow + 1] - vb[hereColumn][hereRow]) * (0.5 + size.Height / (2.0 * VerticalThreshold));
             if (location < 0) location = 0;
             int nextRow = vb[nextColumn].FindIndex(val => val > location) - 1;
@@ -283,6 +287,10 @@ namespace TouchpadGestures_Advanced
                     break;
                 default:
                     throw new ArgumentException();
+            }
+            if (nextRow < 0 || nextRow > MyNMC.ForBrowserWindow.ColumnIndexVsRowIndexVsTabCommon[hereColumn].Count - 1)
+            {
+                return;
             }
             MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab = new KeyValuePair<int, int>(hereColumn, nextRow);
         }
