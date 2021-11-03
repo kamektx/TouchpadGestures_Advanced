@@ -125,9 +125,11 @@ namespace TouchpadGestures_Advanced
         {
             for (int i = this.DataCount; i < this.DataCount + cInput.DataCount; i++)
             {
+                if (i > 4) break;
                 LinkCollection[i] = cInput.LinkCollection[i - this.DataCount];
             }
             this.DataCount += cInput.DataCount;
+            if (this.DataCount > 5) this.DataCount = 5;
             return this.DataCount == this.ContactCount;
         }
     }
