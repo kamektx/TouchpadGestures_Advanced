@@ -36,6 +36,7 @@ namespace TouchpadGestures_Advanced
         public bool IsActive = false;
         public bool InterpretSize(PointD size)
         {
+            // UI Thread
             switch (WhichActionType())
             {
                 case ActionType.dontHandle:
@@ -85,6 +86,7 @@ namespace TouchpadGestures_Advanced
         }
         public ActionType FirstStroke(Direction direction)
         {
+            // UI Thread
             IsActive = true;
             FirstDirection = direction;
             Data.DirectionAction[direction].FirstStroke(direction);

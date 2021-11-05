@@ -46,6 +46,7 @@ namespace TouchpadGestures_Advanced
         }
         public override void FirstStroke(Direction direction)
         {
+            //UI Thread
             IsActive = true;
             FirstDirection = direction;
             KeySend.Down2(CommonKeys);
@@ -53,6 +54,7 @@ namespace TouchpadGestures_Advanced
         }
         public void Stroke(Direction direction)
         {
+            // UI Thread
             if (IsActive)
             {
                 if (DirectionKeys1.ContainsKey(direction))
@@ -67,11 +69,13 @@ namespace TouchpadGestures_Advanced
         }
         public override void Inactivate()
         {
+            // UI Thread
             IsActive = false;
             KeySend.Up2(CommonKeys);
         }
         public override void InterpretSize(PointD size)
         {
+            // UI Thread
             while (size.Height > VerticalThreshold)
             {
                 size.Height -= VerticalThreshold * App.Settings.NextPositionScale;
@@ -139,49 +143,52 @@ namespace TouchpadGestures_Advanced
 
         public override void FirstStroke(Direction direction)
         {
+            // UI Thread until here
             TaskQueue.AddTask(() =>
-           {
-               if (IsActive) return;
+            {
+                if (IsActive) return;
 
-               FirstDirection = direction;
-               //NativeMessaging.ActiveNMC?.CheckRunning();
-               MyNMC = NativeMessaging.ActiveNMC;
-               if (MyNMC != null && MyNMC.IsActive)
-               {
-                   PreviousSize = new PointD(0, 0);
-                   PreviousPosition = new PointD(0, 0);
-                   MyNMC.MySemaphore.Wait();
-                   defaultColumnIndexAndRowIndexOfSelectedTab = MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab;
-                   MyNMC.ForBrowserWindow.Dispatcher.Invoke(MyNMC.ForBrowserWindow.MakeVisible);
-                   IsActive = true;
-               }
-               else
-               {
-                   IsActive = false;
-               }
-           });
+                FirstDirection = direction;
+                //NativeMessaging.ActiveNMC?.CheckRunning();
+                MyNMC = NativeMessaging.ActiveNMC;
+                if (MyNMC != null && MyNMC.IsActive)
+                {
+                    PreviousSize = new PointD(0, 0);
+                    PreviousPosition = new PointD(0, 0);
+                    MyNMC.MySemaphore.Wait();
+                    defaultColumnIndexAndRowIndexOfSelectedTab = MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab;
+                    MyNMC.ForBrowserWindow.Dispatcher.Invoke(MyNMC.ForBrowserWindow.MakeVisible);
+                    IsActive = true;
+                }
+                else
+                {
+                    IsActive = false;
+                }
+            });
 
         }
         public override void Inactivate()
         {
+            // UI Thread until here
             TaskQueue.AddTask(() =>
-           {
-               if (IsActive)
-               {
-                   IsActive = false;
-                   MyNMC.SendChangeTab();
-                   MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab = defaultColumnIndexAndRowIndexOfSelectedTab;
-                   try
-                   {
-                       MyNMC.MySemaphore.Release();
-                   }
-                   catch { }
-                   MyNMC.ForBrowserWindow.Dispatcher.Invoke(MyNMC.ForBrowserWindow.MakeHidden);
-               }
-           });
+            {
+                if (IsActive)
+                {
+                    IsActive = false;
+                    MyNMC.SendChangeTab();
+                    MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab = defaultColumnIndexAndRowIndexOfSelectedTab;
+                    try
+                    {
+                        MyNMC.MySemaphore.Release();
+                    }
+                    catch { }
+                    MyNMC.ForBrowserWindow.Dispatcher.Invoke(MyNMC.ForBrowserWindow.MakeHidden);
+                }
+            });
         }
         public override void InterpretSize(PointD size)
         {
+            // UI Thread
             if (!IsActive)
             {
                 PreviousSize = new PointD(size);
@@ -236,6 +243,7 @@ namespace TouchpadGestures_Advanced
         }
         public void MoveHorizontal(ref PointD size, Direction direction)
         {
+            // UI Thread
             var crst = MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab;
             int hereColumn = crst.Key;
             int hereRow = crst.Value;
@@ -270,6 +278,7 @@ namespace TouchpadGestures_Advanced
         }
         public void MoveVertical(Direction direction)
         {
+            // UI Thread
             var crst = MyNMC.ForBrowserWindow.MyData.ColumnIndexAndRowIndexOfSelectedTab;
             int hereColumn = crst.Key;
             int hereRow = crst.Value;
