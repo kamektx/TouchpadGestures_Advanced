@@ -17,6 +17,7 @@ namespace TouchpadGestures_Advanced
     {
         public static void SubscribeToWindowEvents()
         {
+            GetForegroundAppNameAndUpdateDispatcherNow();
             if (windowEventHook == IntPtr.Zero)
             {
                 windowEventHook = SetWinEventHook(

@@ -103,11 +103,28 @@ namespace TouchpadGestures_Advanced
         {
             TimerThread = new Thread(() =>
             {
+                int restartCounter = 0;
+                int restartMinutes = 20;
+                int scanMinutes = 2;
                 while (true)
                 {
+                    if (restartCounter >= restartMinutes)
+                    {
+                        bool result = App.DispatcherSemaphore.Wait(0);
+                        if (result)
+                        {
+                            App.IsRestart = true;
+                            App.Current.Dispatcher.Invoke(() =>
+                            {
+                                System.Windows.Application.Current.Shutdown();
+                            });
+                            break;
+                        }
+                    }
                     ScanNMC();
                     DeleteNMC_Directories();
-                    Thread.Sleep(60 * 1000);
+                    Thread.Sleep(20 * 1000);
+                    restartCounter += scanMinutes;
                 }
             });
             TimerThread.IsBackground = true;

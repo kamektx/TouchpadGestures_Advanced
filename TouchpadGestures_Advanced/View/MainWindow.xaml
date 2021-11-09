@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TouchpadGestures_Advanced"
         mc:Ignorable="d"
-        Topmost="False"
         WindowState="Minimized"
+        ShowInTaskbar="False"
         Title="MainWindow" Height="100" Width="150">
 </local:OverlayWindow>

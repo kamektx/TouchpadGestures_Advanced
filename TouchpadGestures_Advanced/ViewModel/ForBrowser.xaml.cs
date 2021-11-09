@@ -284,7 +284,7 @@ namespace TouchpadGestures_Advanced
         public void MakeHidden()
         {
 #if DEBUG
-            Opacity = 0.1;
+            Opacity = 0.04;
 #endif
 #if RELEASE
             Opacity = 0.0;

@@ -109,6 +109,7 @@ namespace TouchpadGestures_Advanced
 
         private const int WS_EX_APPWINDOW = 0x00040000;
         private const int WS_EX_TOOLWINDOW = 0x00000080;
+        private const int WS_EX_NOACTIVATE = 0x08000000;
 
         #endregion
 
@@ -234,11 +235,13 @@ namespace TouchpadGestures_Advanced
                 {
                     windowStyle |= WS_EX_TOOLWINDOW;
                     windowStyle &= ~WS_EX_APPWINDOW;
+                    windowStyle |= WS_EX_NOACTIVATE;
                 }
                 else
                 {
                     windowStyle &= ~WS_EX_TOOLWINDOW;
                     windowStyle |= WS_EX_APPWINDOW;
+                    windowStyle &= ~WS_EX_NOACTIVATE;
                 }
 
                 SetWindowLong(handle, GWL_EXSTYLE, windowStyle);

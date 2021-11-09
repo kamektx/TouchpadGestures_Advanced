@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows;
 using Microsoft.Win32;
 using System.IO;
+using System.Diagnostics;
 
 namespace TouchpadGestures_Advanced
 {
@@ -30,6 +31,8 @@ namespace TouchpadGestures_Advanced
         public static MyNotifyIcon myNotifyIcon;
         public static Settings Settings;
         public static MainWindow MainWindow01;
+        public static bool IsRestart = false;
+        public static string MyPath = Process.GetCurrentProcess().MainModule.FileName;
 
         private static void Registry_TGA_NMC_Values_Init()
         {
@@ -113,6 +116,14 @@ namespace TouchpadGestures_Advanced
                 Mutex.ReleaseMutex();
             }
             Mutex.Close();
+
+            myNotifyIcon?.Dispose();
+
+            if (IsRestart)
+            {
+                var psi = new ProcessStartInfo(MyPath);
+                System.Diagnostics.Process.Start(psi);
+            }
 
             base.OnExit(e);
         }

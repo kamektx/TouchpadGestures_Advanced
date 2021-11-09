@@ -31,7 +31,7 @@ namespace TouchpadGestures_Advanced
             };
             var menuItemSettings = new ToolStripMenuItem();
             menuItemSettings.Text = "Settings";
-            menuItemExit.Click += (s, e) =>
+            menuItemSettings.Click += (s, e) =>
             {
             };
 
@@ -49,6 +49,11 @@ namespace TouchpadGestures_Advanced
                     mi.Invoke(icon, null);
                 }
             };
+        }
+
+        public void Dispose()
+        {
+            icon.Dispose();
         }
 
         ~MyNotifyIcon()
