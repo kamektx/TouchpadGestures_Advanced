@@ -123,7 +123,7 @@ namespace TouchpadGestures_Advanced
                     }
                     ScanNMC();
                     DeleteNMC_Directories();
-                    Thread.Sleep(20 * 1000);
+                    Thread.Sleep(60 * scanMinutes * 1000);
                     restartCounter += scanMinutes;
                 }
             });
