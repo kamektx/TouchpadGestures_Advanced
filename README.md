@@ -18,7 +18,7 @@ The standard feature of Windows 10 allows users to switch foreground windows by 
 
 ## How to Use?
 
-- This application is for **Windows 10** only.
+- This application is for **Windows 10 and Windows 11** only.
 - Download the installer in Releases page.
 - Unzip the installer's zip.
 - Run "setup.exe".
